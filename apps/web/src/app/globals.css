@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design tokens. "Registan": glazed-tile teal as the working colour, saffron as the single warm accent.
+  Colours are space-separated RGB triples so Tailwind can apply opacity (bg-primary/10).
+*/
+:root {
+  --bg: 240 244 243;
+  --surface: 255 255 255;
+  --surface-2: 232 238 237;
+  --border: 211 221 220;
+  --fg: 13 30 36;
+  --muted: 86 107 113;
+  --primary: 11 114 128;
+  --primary-fg: 255 255 255;
+  --primary-deep: 7 66 80;
+  --accent: 226 152 38;
+  --danger: 190 38 52;
+  --danger-fg: 255 255 255;
+  --success: 24 125 78;
+  --warn: 168 92 6;
+
+  --shadow-sm: 0 1px 2px rgb(13 30 36 / 0.06), 0 0 0 1px rgb(13 30 36 / 0.03);
+  --shadow-md: 0 1px 2px rgb(13 30 36 / 0.05), 0 6px 18px -6px rgb(13 30 36 / 0.14);
+  --shadow-lg: 0 2px 4px rgb(13 30 36 / 0.06), 0 24px 48px -12px rgb(13 30 36 / 0.28);
+  --scrim: 8 20 24 / 0.5;
+  --glow: 11 114 128 / 0.18;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: 7 17 20; --surface: 13 26 30; --surface-2: 21 38 43; --border: 35 57 63; --fg: 228 239 239; --muted: 131 157 163;
+    --primary: 62 196 207; --primary-fg: 3 23 27; --primary-deep: 10 74 86; --accent: 247 188 80;
+    --danger: 255 125 125; --danger-fg: 42 6 10; --success: 94 214 142; --warn: 247 188 80;
+    --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.03);
+    --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.03);
+    --shadow-lg: 0 28px 56px -14px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.05);
+    --scrim: 2 8 10 / 0.68;
+    --glow: 62 196 207 / 0.22;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: 7 17 20; --surface: 13 26 30; --surface-2: 21 38 43; --border: 35 57 63; --fg: 228 239 239; --muted: 131 157 163;
+  --primary: 62 196 207; --primary-fg: 3 23 27; --primary-deep: 10 74 86; --accent: 247 188 80;
+  --danger: 255 125 125; --danger-fg: 42 6 10; --success: 94 214 142; --warn: 247 188 80;
+  --shadow-sm: 0 0 0 1px rgb(255 255 255 / 0.03);
+  --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.03);
+  --shadow-lg: 0 28px 56px -14px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.05);
+  --scrim: 2 8 10 / 0.68;
+  --glow: 62 196 207 / 0.22;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body {
+  @apply bg-bg font-sans text-fg antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+  font-feature-settings: 'cv11', 'ss01';
+  background-image:
+    radial-gradient(60rem 36rem at 100% -10%, rgb(var(--glow)), transparent 70%),
+    radial-gradient(48rem 30rem at -10% 110%, rgb(var(--glow) / 0.6), transparent 70%);
+  background-attachment: fixed;
+}
+button, [role='button'] { touch-action: manipulation; }
+:focus-visible { outline: 2px solid rgb(var(--primary)); outline-offset: 2px; border-radius: 6px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; }
+::selection { background: rgb(var(--primary) / 0.28); }
+.tabular { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { letter-spacing: -0.012em; }
+
+/* thin scrollbars that follow the theme */
+* { scrollbar-width: thin; scrollbar-color: rgb(var(--border)) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgb(var(--border)); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--muted) / 0.6); background-clip: content-box; border: 2px solid transparent; }
+
+/* ------------------------------------------------------------------ motion */
+@keyframes kass-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes kass-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kass-pop { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes kass-toast { from { opacity: 0; transform: translateX(24px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes kass-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes kass-row { 0% { background-color: rgb(var(--primary) / 0.22); transform: translateX(-6px); opacity: 0; } 40% { opacity: 1; } 100% { background-color: transparent; transform: none; } }
+@keyframes kass-spin-slow { to { transform: rotate(360deg); } }
+@keyframes kass-bar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes kass-check { to { stroke-dashoffset: 0; } }
+@keyframes kass-ring { 0% { transform: scale(0.6); opacity: 0.7; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes kass-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0.5); } 60% { box-shadow: 0 0 0 10px rgb(var(--accent) / 0); } }
+@keyframes kass-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+.anim-rise { animation: kass-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+.anim-fade { animation: kass-fade 0.3s ease both; }
+.anim-pop { animation: kass-pop 0.22s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.anim-toast { animation: kass-toast 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.anim-row { animation: kass-row 0.7s ease-out backwards; }
+.anim-bar { transform-origin: top; animation: kass-bar 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.anim-pulse { animation: kass-pulse 2.2s ease-out infinite; }
+.anim-float { animation: kass-float 6s ease-in-out infinite; }
+.skeleton {
+  background: linear-gradient(100deg, rgb(var(--surface-2)) 30%, rgb(var(--border) / 0.55) 50%, rgb(var(--surface-2)) 70%);
+  background-size: 200% 100%;
+  animation: kass-shimmer 1.6s linear infinite;
+  border-radius: 8px;
+}
+.star-spin { animation: kass-spin-slow 240s linear infinite; transform-origin: center; }
+.check-draw { stroke-dasharray: 32; stroke-dashoffset: 32; animation: kass-check 0.5s 0.15s ease-out forwards; }
+.check-ring { animation: kass-ring 0.9s ease-out both; }
+
+/* theme switch: a circle of the new theme grows from the toggle (View Transitions API) */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .star-spin, .anim-float, .anim-pulse { animation: none !important; }
+}
+
+/* native selects keep their behaviour but follow the theme */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a9ea3' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+  padding-right: 2rem;
+}
+select option { background: rgb(var(--surface)); color: rgb(var(--fg)); }

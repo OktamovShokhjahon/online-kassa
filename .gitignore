@@ -1,0 +1,16 @@
+node_modules
+dist
+.next
+.env
+.env.local
+*.log
+coverage
+.turbo
+.mongo-cache
+apps/api/uploads
+.devdata
+
+# Playwright
+test-results/
+playwright-report/
+.next-e2e

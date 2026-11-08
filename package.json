@@ -1,0 +1,37 @@
+{
+  "name": "online-kass",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Online Kass - multi-tenant POS and inventory platform",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "demo": "node scripts/dev.mjs --demo",
+    "demo:reset": "node scripts/dev.mjs --demo --reset",
+    "dev:api": "npm run dev -w @kass/api",
+    "dev:web": "npm run dev -w @kass/web",
+    "dev:agent": "npm run dev -w @kass/agent",
+    "dev:stack": "npm run dev:stack -w @kass/api --",
+    "build": "npm run build -ws --if-present",
+    "typecheck": "npm run typecheck -ws --if-present",
+    "test": "npm run test -ws --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "seed:superadmin": "npm run seed:superadmin -w @kass/api",
+    "migrate": "npm run migrate -w @kass/api"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0"
+  }
+}

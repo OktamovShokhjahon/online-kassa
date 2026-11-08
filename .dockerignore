@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/dist
+**/.devdata
+.git
+.github
+docs
+*.md
+apps/*/test
+apps/agent

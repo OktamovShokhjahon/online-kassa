@@ -1,0 +1,67 @@
+name: CI
+on:
+  push: { branches: [main, master] }
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      # API tests start an in-memory MongoDB replica set (downloads the mongod binary once)
+      - name: Cache mongodb-memory-server binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongo-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Test
+        run: npm test
+      # fails when a translation key used in the web source is missing in any language
+      - name: Translation coverage
+        run: npx tsx apps/web/scripts/i18n-usage.ts
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: verify
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f docker/api.Dockerfile -t onlinekass-api .
+      - run: docker build -f docker/web.Dockerfile -t onlinekass-web .
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: verify
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      # Playwright starts `dev:stack` (in-memory MongoDB replica set + API) and the Next.js dev server itself
+      - run: npm run test:e2e -w @kass/web
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apps/web/test-results
