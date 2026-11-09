@@ -3,7 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { PAYMENT_METHODS } from '@kass/shared';
+import { PAYMENT_METHODS, inventoryEnabled } from '@kass/shared';
+import Link from 'next/link';
 import { CrudPage } from '@/components/crud';
 import { Badge, Button, DataTable, Field, FormError, Input, Modal, MoneyInput, Select, useToast } from '@/components/ui';
 import { api, post, qs } from '@/lib/api';
@@ -18,6 +19,10 @@ export default function SuppliersPage() {
   const [statement, setStatement] = useState<any>(null);
   const [pay, setPay] = useState<any>(null);
   const [debtOnly, setDebtOnly] = useState(false);
+  // Without the full warehouse a supplier is simply who delivers goods: show what they brought, not debts.
+  const simple = !inventoryEnabled();
+  const { data: stats } = useQuery({ queryKey: ['receipt-stats', 'all'], queryFn: () => api<any>('/goods-receipts/stats'), enabled: simple && (can('stock.receipt') || can('stock.view')) });
+  const byId = new Map<string, any>((stats?.bySupplier ?? []).filter((x: any) => x.supplierId).map((x: any) => [x.supplierId, x]));
   return (
     <>
       <CrudPage<any>
@@ -26,7 +31,7 @@ export default function SuppliersPage() {
         queryKey="suppliers"
         canWrite={can('suppliers.manage')}
         extraParams={{ debtOnly: debtOnly ? 'true' : undefined }}
-        headerActions={<Button variant={debtOnly ? 'primary' : 'secondary'} onClick={() => setDebtOnly(!debtOnly)}>{t('debtOnly')}</Button>}
+        headerActions={simple ? undefined : <Button variant={debtOnly ? 'primary' : 'secondary'} onClick={() => setDebtOnly(!debtOnly)}>{t('debtOnly')}</Button>}
         emptyForm={{ name: '', contactPerson: '', phone: '', address: '', tin: '', paymentTermDays: 0, note: '', isActive: true }}
         fromRow={(r) => ({ name: r.name, contactPerson: r.contactPerson ?? '', phone: r.phone ?? '', address: r.address ?? '', tin: r.tin ?? '', paymentTermDays: r.paymentTermDays, note: r.note ?? '', isActive: r.isActive })}
         toBody={(f) => ({ name: f.name, contactPerson: f.contactPerson || undefined, phone: f.phone || undefined, address: f.address || undefined, tin: f.tin || undefined, paymentTermDays: Number(f.paymentTermDays) || 0, note: f.note || undefined, isActive: f.isActive })}
@@ -34,18 +39,23 @@ export default function SuppliersPage() {
           { key: 'name', label: tc('name'), required: true },
           { key: 'contactPerson', label: t('contact') },
           { key: 'phone', label: tc('phone'), type: 'tel' },
-          { key: 'tin', label: t('tin') },
+          ...(simple ? [] : [{ key: 'tin', label: t('tin') }]),
           { key: 'address', label: t('address'), span: 2 },
-          { key: 'paymentTermDays', label: t('paymentTerm'), type: 'number' },
+          ...(simple ? [] : [{ key: 'paymentTermDays', label: t('paymentTerm'), type: 'number' as const }]),
           { key: 'isActive', label: tc('active'), type: 'checkbox' },
           { key: 'note', label: tc('note'), type: 'textarea', span: 2 },
         ]}
-        columns={[
+        columns={simple ? [
+          { key: 'name', header: tc('name'), render: (r) => <div><span className="font-medium">{r.name}</span>{r.isActive === false && <Badge tone="neutral">{tc('inactive')}</Badge>}<div className="text-xs text-muted">{r.contactPerson} {r.phone}</div></div> },
+          { key: 'arrivals', header: t('arrivals'), align: 'right', render: (r) => byId.get(r.id)?.receipts ?? 0 },
+          { key: 'amount', header: t('amount'), align: 'right', render: (r) => <b>{m(byId.get(r.id)?.amount ?? 0)}</b> },
+          { key: 'lastArrival', header: t('lastArrival'), render: (r) => (byId.get(r.id) ? fmtDate(byId.get(r.id).lastAt) : <span className="text-muted">{t('never')}</span>) },
+        ] : [
           { key: 'name', header: tc('name'), render: (r) => <div><span className="font-medium">{r.name}</span><div className="text-xs text-muted">{r.contactPerson} {r.phone}</div></div> },
           { key: 'paymentTermDays', header: t('paymentTerm'), align: 'right' },
           { key: 'balance', header: t('balance'), align: 'right', render: (r) => (r.balance > 0 ? <Badge tone="danger">{m(r.balance)}</Badge> : r.balance < 0 ? <Badge tone="info">{m(r.balance)}</Badge> : m(0)) },
         ]}
-        rowActions={(r) => <><Button size="sm" variant="secondary" onClick={() => setStatement(r)}>{t('statement')}</Button>{can('suppliers.pay') && <Button size="sm" variant="secondary" onClick={() => setPay(r)}>{t('pay')}</Button>}</>}
+        rowActions={simple ? (r) => <Link href={`/shop/warehouse?supplierId=${r.id}`} className="inline-flex h-8 items-center rounded-lg border border-border px-3 text-sm hover:bg-surface-2">{t('viewArrivals')}</Link> : (r) => <><Button size="sm" variant="secondary" onClick={() => setStatement(r)}>{t('statement')}</Button>{can('suppliers.pay') && <Button size="sm" variant="secondary" onClick={() => setPay(r)}>{t('pay')}</Button>}</>}
       />
       <StatementModal supplier={statement} onClose={() => setStatement(null)} />
       <PayModal supplier={pay} onClose={() => setPay(null)} />

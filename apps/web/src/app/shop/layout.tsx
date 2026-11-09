@@ -7,6 +7,7 @@ const NAV: NavItem[] = [
   { href: '/shop/categories', label: 'categories', perms: ['products.view'], group: 'catalog' },
   { href: '/shop/prices', label: 'prices', perms: ['prices.view'], group: 'catalog' },
   { href: '/shop/promotions', label: 'promotions', perms: ['promotions.manage'], group: 'catalog' },
+  { href: '/shop/warehouse', label: 'warehouse', perms: ['stock.receipt', 'stock.view'], group: 'stock' },
   { href: '/shop/stock', label: 'stock', perms: ['stock.view', 'stock.receipt'], group: 'stock' },
   { href: '/shop/receipts', label: 'receipts', perms: ['stock.receipt', 'stock.view'], group: 'stock' },
   { href: '/shop/transfers', label: 'transfers', perms: ['stock.transfer', 'stock.view'], group: 'stock' },
@@ -23,8 +24,11 @@ const NAV: NavItem[] = [
   { href: '/shop/audit', label: 'audit', perms: ['audit.view'], group: 'company' },
 ];
 
+const SIMPLE = ['/shop/warehouse', '/shop/suppliers'];
+
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
-  // the warehouse ("Ombor": stock, receipts, transfers, write-offs, counts, suppliers) is off for now
-  const nav = inventoryEnabled() ? NAV : NAV.filter((n) => n.group !== 'stock');
+  // The full warehouse (stock balances, transfers, write-offs, counts) is off for now; the simple
+  // Ombor (goods arrivals + statistics) and the suppliers / delivery people stay.
+  const nav = inventoryEnabled() ? NAV : NAV.filter((n) => n.group !== 'stock' || SIMPLE.includes(n.href));
   return <Shell nav={nav} roles={['shop_admin', 'branch_manager', 'storekeeper']} ns="shop">{children}</Shell>;
 }

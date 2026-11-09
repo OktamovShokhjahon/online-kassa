@@ -5,6 +5,7 @@ import {
   cancelSchema,
   documentListQuerySchema,
   goodsReceiptInputSchema,
+  goodsReceiptStatsQuerySchema,
   goodsReceiptUpdateSchema,
   objectId,
   stockCountInputSchema,
@@ -128,7 +129,7 @@ async function postReceipt(req: Request, id: string) {
     for (const l of r.lines) {
       await tx.move({ branchId: r.branchId, productId: l.productId, type: 'goods_receipt', quantity: l.qty, unitCost: l.cost, docType: 'goods_receipt', docId: r._id, docNumber: r.number });
     }
-    await Supplier.updateOne({ _id: r.supplierId, shopId: sid }, { $inc: { balance: r.total } }, { session });
+    if (r.supplierId) await Supplier.updateOne({ _id: r.supplierId, shopId: sid }, { $inc: { balance: r.total } }, { session });
     await lockCurrency(sid, session);
     await audit(req, { action: 'goods_receipt.posted', entity: 'goods_receipt', entityId: r._id, meta: { number: r.number, total: r.total } }, session);
     return r;
@@ -144,7 +145,7 @@ goodsReceiptsRouter.get(
   h(async (req, res) => {
     const q = req.query as any;
     const { items, meta } = await repo(req, GoodsReceipt).paginate(listFilter(req, q), { page: q.page, limit: q.limit, sort: '-createdAt' });
-    ok(res, items.map((d) => d.toJSON()), meta);
+    ok(res, await withNames(req, items), meta);
   }),
 );
 
@@ -154,15 +155,71 @@ goodsReceiptsRouter.post(
   validate({ body: goodsReceiptInputSchema }),
   h(async (req, res) => {
     const a = auth(req);
-    const { post, ...b } = req.body as z.infer<typeof goodsReceiptInputSchema>;
+    const { post, updateCostPrice, ...b } = req.body as z.infer<typeof goodsReceiptInputSchema>;
     await assertBranch(req, b.branchId);
-    await assertSupplier(req, b.supplierId);
+    if (b.supplierId) await assertSupplier(req, b.supplierId);
     await assertProducts(req, b.lines.map((l) => l.productId));
     const number = await nextNumber(shopId(req), 'goodsReceipt', 'GR');
     const doc = await repo(req, GoodsReceipt).create({ ...b, number, total: sum(b.lines), createdBy: a.userId, status: 'draft' });
     await audit(req, { action: 'goods_receipt.created', entity: 'goods_receipt', entityId: doc._id, meta: { number } });
     const final = post ? await postReceipt(req, String(doc._id)) : doc;
+    if (post && updateCostPrice && a.role === 'shop_admin') {
+      for (const l of b.lines) if (l.cost > 0) await repo(req, Product).updateOne({ _id: l.productId }, { $set: { costPrice: l.cost } });
+    }
     created(res, (await withNames(req, [final]))[0]);
+  }),
+);
+
+/**
+ * Arrival statistics for the Ombor page: totals, per day (Tashkent), per supplier ("no supplier"
+ * grouped as null) and per product. Only posted receipts count.
+ */
+goodsReceiptsRouter.get(
+  '/stats',
+  requirePermission(...VIEW),
+  validate({ query: goodsReceiptStatsQuerySchema }),
+  h(async (req, res) => {
+    const q = req.query as unknown as z.infer<typeof goodsReceiptStatsQuerySchema>;
+    const a = auth(req);
+    const match: Record<string, any> = { shopId: oid(shopId(req)), status: 'posted' };
+    if (a.role !== 'shop_admin') match.branchId = { $in: a.branchIds.map((b) => oid(String(b))) };
+    if (q.branchId) {
+      assertBranchAccess(req, q.branchId);
+      match.branchId = oid(q.branchId);
+    }
+    if (q.supplierId) match.supplierId = oid(q.supplierId);
+    if (q.from || q.to) match.postedAt = { ...(q.from ? { $gte: q.from } : {}), ...(q.to ? { $lte: q.to } : {}) };
+    const day = { $dateToString: { format: '%Y-%m-%d', date: '$postedAt', timezone: '+05:00' } };
+    const lineAmount = { $round: [{ $multiply: ['$lines.qty', '$lines.cost'] }, 0] };
+    const [docs, days, sups, prods] = await Promise.all([
+      GoodsReceipt.aggregate([{ $match: match }, { $group: { _id: null, receipts: { $sum: 1 }, amount: { $sum: '$total' }, suppliers: { $addToSet: '$supplierId' } } }]),
+      GoodsReceipt.aggregate([{ $match: match }, { $unwind: '$lines' }, { $group: { _id: day, amount: { $sum: lineAmount }, quantity: { $sum: '$lines.qty' }, docs: { $addToSet: '$_id' } } }, { $sort: { _id: 1 } }]),
+      GoodsReceipt.aggregate([{ $match: match }, { $unwind: '$lines' }, { $group: { _id: { $ifNull: ['$supplierId', null] }, amount: { $sum: lineAmount }, quantity: { $sum: '$lines.qty' }, docs: { $addToSet: '$_id' }, lastAt: { $max: '$postedAt' } } }, { $sort: { amount: -1 } }]),
+      GoodsReceipt.aggregate([{ $match: match }, { $unwind: '$lines' }, { $group: { _id: '$lines.productId', amount: { $sum: lineAmount }, quantity: { $sum: '$lines.qty' }, docs: { $addToSet: '$_id' }, lastAt: { $max: '$postedAt' } } }, { $sort: { quantity: -1 } }, { $limit: 200 }]),
+    ]);
+    const supIds = sups.map((s) => s._id).filter(Boolean);
+    const [supNames, prodNames] = await Promise.all([
+      repo(req, Supplier).find({ _id: { $in: supIds } }).select('name').lean(),
+      repo(req, Product).find({ _id: { $in: prods.map((p) => p._id) } }).select('name unit barcodes').lean(),
+    ]);
+    const sn = new Map(supNames.map((s) => [String(s._id), s.name]));
+    const pn = new Map(prodNames.map((p) => [String(p._id), p]));
+    const quantity = days.reduce((s, d) => s + d.quantity, 0);
+    ok(res, {
+      totals: {
+        receipts: docs[0]?.receipts ?? 0,
+        amount: docs[0]?.amount ?? 0,
+        quantity: Math.round(quantity * 1000) / 1000,
+        products: prods.length,
+        suppliers: (docs[0]?.suppliers ?? []).filter(Boolean).length,
+      },
+      byDay: days.map((d) => ({ date: d._id, amount: d.amount, quantity: d.quantity, receipts: d.docs.length })),
+      bySupplier: sups.map((s) => ({ supplierId: s._id ? String(s._id) : null, name: s._id ? sn.get(String(s._id)) ?? '' : null, amount: s.amount, quantity: s.quantity, receipts: s.docs.length, lastAt: s.lastAt })),
+      byProduct: prods.map((p) => {
+        const prod = pn.get(String(p._id)) as any;
+        return { productId: String(p._id), name: prod?.name ?? '', unit: prod?.unit, barcode: prod?.barcodes?.[0], amount: p.amount, quantity: p.quantity, avgCost: p.quantity ? Math.round(p.amount / p.quantity) : 0, receipts: p.docs.length, lastAt: p.lastAt };
+      }),
+    });
   }),
 );
 
@@ -184,6 +241,7 @@ goodsReceiptsRouter.patch(
     const b = req.body as z.infer<typeof goodsReceiptUpdateSchema>;
     if (b.branchId) await assertBranch(req, b.branchId);
     if (b.supplierId) await assertSupplier(req, b.supplierId);
+    if (b.supplierId === null) (b as any).supplierId = undefined;
     if (b.lines) {
       await assertProducts(req, b.lines.map((l) => l.productId));
       doc.lines = b.lines;
@@ -224,7 +282,7 @@ goodsReceiptsRouter.post(
         for (const l of r.lines) {
           await tx.move({ branchId: r.branchId, productId: l.productId, type: 'goods_receipt_reversal', quantity: -l.qty, unitCost: l.cost, docType: 'goods_receipt', docId: r._id, docNumber: r.number, note: req.body.reason });
         }
-        await Supplier.updateOne({ _id: r.supplierId, shopId: sid }, { $inc: { balance: -r.total } }, { session });
+        if (r.supplierId) await Supplier.updateOne({ _id: r.supplierId, shopId: sid }, { $inc: { balance: -r.total } }, { session });
       }
       await audit(req, { action: 'goods_receipt.cancelled', entity: 'goods_receipt', entityId: r._id, meta: { reason: req.body.reason, wasPosted: existing.status === 'posted' } }, session);
       return r;

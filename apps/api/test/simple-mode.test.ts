@@ -41,7 +41,10 @@ describe('selling without the warehouse', () => {
     const keys = ok(await t.get('/reports')).map((r: any) => r.key);
     expect(keys).toContain('profit');
     expect(keys).toContain('sales');
-    for (const k of ['stock', 'stock-movement', 'negative-stock', 'slow-moving', 'purchases', 'suppliers']) expect(keys).not.toContain(k);
+    for (const k of ['stock', 'stock-movement', 'negative-stock', 'slow-moving']) expect(keys).not.toContain(k);
+    // arrivals and suppliers stay: the Ombor page records goods that came in
+    expect(keys).toContain('purchases');
+    expect(keys).toContain('suppliers');
   });
 });
 
@@ -90,5 +93,50 @@ describe('cost price', () => {
     expect(ok(await t.patch(`/products/${p.id}`, { name: 'Choy 100g', costPrice: 900_000 }, mgr.h)).name).toBe('Choy 100g');
     expect((await t.post('/products', { name: 'Kofe', costPrice: 5 }, mgr.h)).status).toBe(403);
     expect(ok(await t.post('/products', { name: 'Kofe' }, mgr.h), 201).name).toBe('Kofe');
+  });
+});
+
+describe('Ombor: goods arrivals and delivery people', () => {
+  it('records arrivals with or without a supplier, keeps them, and counts them in the statistics', async () => {
+    const t = await posCtx({ openShift: false });
+    const sup = ok(await t.post('/suppliers', { name: 'Akmal (yetkazib beruvchi)', phone: '+998901234567' }), 201);
+    const un = ok(await t.post('/products', { name: 'Un 1kg', costPrice: 700_000 }), 201);
+    const before = ok(await t.get('/goods-receipts/stats')).totals; // the test shop already has a receipt
+
+    // with a delivery person, updating the cost price
+    const r1 = ok(await t.post('/goods-receipts', { supplierId: sup.id, branchId: t.shop.branchId, lines: [{ productId: un.id, qty: 10, cost: 800_000 }], post: true, updateCostPrice: true }), 201);
+    expect(r1.status).toBe('posted');
+    expect(r1.supplierId).toBe(sup.id);
+    expect(ok(await t.get(`/products/${un.id}`)).costPrice).toBe(800_000);
+    expect(ok(await t.get(`/suppliers/${sup.id}`)).balance).toBe(8_000_000);
+
+    // without anyone (left blank)
+    const r2 = ok(await t.post('/goods-receipts', { branchId: t.shop.branchId, lines: [{ productId: un.id, qty: 5, cost: 900_000 }], post: true }), 201);
+    expect(r2.supplierId ?? null).toBeNull();
+    // cost price untouched without the flag
+    expect(ok(await t.get(`/products/${un.id}`)).costPrice).toBe(800_000);
+
+    // a product that does not exist is refused
+    const bad = await t.post('/goods-receipts', { branchId: t.shop.branchId, lines: [{ productId: '64b000000000000000000000', qty: 1, cost: 1 }], post: true });
+    expect(bad.status).toBe(404);
+
+    const list = ok(await t.get('/goods-receipts'));
+    expect(list.slice(0, 2).map((d: any) => d.id)).toEqual([r2.id, r1.id]);
+
+    const st = ok(await t.get('/goods-receipts/stats'));
+    expect(st.totals).toMatchObject({ receipts: before.receipts + 2, amount: before.amount + 12_500_000, quantity: before.quantity + 15, products: before.products + 1, suppliers: before.suppliers + 1 });
+    expect(st.byProduct.find((p: any) => p.productId === un.id)).toMatchObject({ productId: un.id, quantity: 15, amount: 12_500_000, avgCost: 833_333, receipts: 2 });
+    expect(st.bySupplier.find((s: any) => s.supplierId === sup.id)).toMatchObject({ name: 'Akmal (yetkazib beruvchi)', receipts: 1, quantity: 10 });
+    expect(st.bySupplier.find((s: any) => s.supplierId === null)).toMatchObject({ receipts: 1, quantity: 5 });
+    expect(st.byDay.at(-1)).toMatchObject({ receipts: before.receipts + 2 });
+
+    // filtered by supplier
+    expect(ok(await t.get(`/goods-receipts/stats?supplierId=${sup.id}`)).totals.receipts).toBe(1);
+
+    // cancelling an arrival takes it out of the statistics and the supplier balance
+    ok(await t.post(`/goods-receipts/${r1.id}/cancel`, { reason: 'Xato kiritildi' }));
+    expect(ok(await t.get('/goods-receipts/stats')).totals.receipts).toBe(before.receipts + 1);
+    expect(ok(await t.get(`/suppliers/${sup.id}`)).balance).toBe(0);
+    ok(await t.post(`/goods-receipts/${r2.id}/cancel`, { reason: 'Xato kiritildi' }));
   });
 });

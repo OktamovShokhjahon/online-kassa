@@ -101,7 +101,7 @@ const goodsReceiptSchema = new Schema(
   {
     shopId: { type: oid, ref: 'Shop', required: true },
     number: { type: String, required: true },
-    supplierId: { type: oid, ref: 'Supplier', required: true },
+    supplierId: { type: oid, ref: 'Supplier' },
     branchId: { type: oid, ref: 'Branch', required: true },
     invoiceNo: String,
     invoiceDate: Date,

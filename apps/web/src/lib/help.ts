@@ -270,6 +270,31 @@ export const HELP: Record<string, HelpEntry> = {
     m: ['Foyda = sotuv narxi − tannarx. Hisobotlar va boshqaruv panelidagi foyda shundan hisoblanadi. Xodimlar va kassirlar buni koʻrmaydi.', 'Прибыль = цена продажи − себестоимость. По ней считается прибыль в отчётах и на главной. Кассиры её не видят.', 'Profit = selling price − cost price. Profit in reports and on the dashboard comes from it. Cashiers never see it.'],
     e: '9 000',
   },
+  /* ----------------------------------------------------------------- warehouse (Ombor) */
+  'shop.warehouse.supplier': {
+    d: ['Mahsulotni kim olib keldi (ixtiyoriy)', 'Кто привёз товар (необязательно)', 'Who delivered the goods (optional)'],
+    m: ['«Yetkazib beruvchilar» sahifasida qoʻshilgan odam yoki firma. Bilmasangiz, «Koʻrsatilmagan» qoldiring: kirim baribir saqlanadi.', 'Человек или фирма со страницы «Поставщики». Если не знаете — оставьте «Не указан»: приход всё равно сохранится.', 'A person or company from the Suppliers page. If you do not know, leave "Not specified": the arrival is saved anyway.'],
+    e: ['Akmal (Coca-Cola)', 'Акмал (Coca-Cola)', 'Akmal (Coca-Cola)'],
+  },
+  'shop.warehouse.addProduct': {
+    d: ['Kelgan mahsulotni qidirib tanlang', 'Найдите и выберите поступивший товар', 'Find and pick the product that arrived'],
+    m: ['Faqat «Mahsulotlar» sahifasida yaratilgan mahsulotlarni tanlash mumkin. Shtrix-kodni skanerlasangiz ham topiladi. Bir kirimga bir nechta mahsulot qoʻshish mumkin.', 'Можно выбрать только товары, созданные на странице «Товары». Можно отсканировать штрихкод. В один приход можно добавить несколько товаров.', 'Only products created on the Products page can be picked. Scanning a barcode finds it too. One arrival can hold several products.'],
+    e: ['Coca-Cola 1L', 'Coca-Cola 1L', 'Coca-Cola 1L'],
+  },
+  'shop.warehouse.quantity': {
+    d: ['Nechta (kg, litr) keldi', 'Сколько пришло (шт, кг, л)', 'How many (pcs, kg, l) arrived'],
+    m: ['Tortiladigan mahsulot uchun kasr son kiriting.', 'Для весового товара можно ввести дробное число.', 'Use a decimal for weighed goods.'],
+    e: '24',
+  },
+  'shop.warehouse.unitCost': {
+    d: ['Bittasini necha soʻmga oldingiz', 'Сколько стоила одна единица', 'What one unit cost you'],
+    m: ['Mahsulotning tannarxi avtomatik qoʻyiladi, oʻzgartirish mumkin. Kirim summasi = miqdor × narx.', 'Подставляется себестоимость товара, её можно изменить. Сумма прихода = количество × цена.', 'Filled from the product cost price; you can change it. Arrival amount = quantity × cost.'],
+    e: '9 000',
+  },
+  'shop.warehouse.updateCostPrice': {
+    d: ['Foyda yangi narx bilan hisoblanadi', 'Прибыль будет считаться по новой цене', 'Profit will use the new cost'],
+    m: ['Belgilansa, har bir mahsulotning «Tannarx»i shu kirimdagi narxga oʻzgaradi va keyingi sotuvlar foydasi shu bilan hisoblanadi. Faqat doʻkon egasi uchun.', 'Если отмечено, «Себестоимость» каждого товара станет ценой из этого прихода, и прибыль следующих продаж считается по ней. Только для владельца.', 'When ticked, each product’s cost price becomes the cost in this arrival and profit on later sales uses it. Shop owner only.'],
+  },
   'shop.products.extraBarcode': {
     d: ['Zavod kodi yoki ikkinchi kod', 'Заводской или второй код', 'Factory code or a second code'],
     m: ['Mahsulot qadogʻidagi shtrix-kodni skanerlang: kassada ikkala kod ham shu mahsulotni topadi.', 'Отсканируйте штрихкод на упаковке: на кассе оба кода найдут этот товар.', 'Scan the code on the package: at the till both codes find this product.'],

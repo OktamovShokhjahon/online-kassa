@@ -33,7 +33,8 @@ export const statementQuerySchema = z.object({ from: isoDate.optional(), to: iso
 
 const receiptLine = z.object({ productId: objectId, qty: qtySchema, cost: moneySchema });
 export const goodsReceiptInputSchema = z.object({
-  supplierId: objectId,
+  /** Optional: goods may arrive without a known supplier / delivery person. */
+  supplierId: objectId.optional(),
   branchId: objectId,
   invoiceNo: z.string().trim().max(64).optional(),
   invoiceDate: isoDate.optional(),
@@ -41,8 +42,18 @@ export const goodsReceiptInputSchema = z.object({
   note: z.string().trim().max(500).optional(),
   /** Create and post in one step. */
   post: z.boolean().default(false),
+  /** Shop owner only: when posted, set each product's cost price ("tannarx") to the line cost. */
+  updateCostPrice: z.boolean().default(false),
 });
-export const goodsReceiptUpdateSchema = goodsReceiptInputSchema.omit({ post: true }).partial();
+export const goodsReceiptUpdateSchema = goodsReceiptInputSchema.omit({ post: true, supplierId: true, updateCostPrice: true }).partial().extend({ supplierId: objectId.nullable().optional() });
+
+/** Arrival statistics (Ombor page). */
+export const goodsReceiptStatsQuerySchema = z.object({
+  from: isoDate.optional(),
+  to: isoDate.optional(),
+  branchId: objectId.optional(),
+  supplierId: objectId.optional(),
+});
 
 export const supplierReturnInputSchema = z.object({
   supplierId: objectId,

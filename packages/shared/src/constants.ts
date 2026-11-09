@@ -156,4 +156,4 @@ export function inventoryEnabled(): boolean {
 }
 
 /** Reports that only make sense with the warehouse. */
-export const INVENTORY_REPORTS = ['stock', 'stock-movement', 'negative-stock', 'slow-moving', 'purchases', 'suppliers'] as const;
+export const INVENTORY_REPORTS = ['stock', 'stock-movement', 'negative-stock', 'slow-moving'] as const;

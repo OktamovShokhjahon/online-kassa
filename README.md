@@ -72,10 +72,13 @@ Try the POS as `demo.cashier`: open a shift, scan or type a barcode, pay with F9
 The demo history is created through the public API and then moved back in time by `apps/api/src/scripts/seed-demo.ts`
 (a development-only tool: it needs direct database access).
 
-### Warehouse ("Ombor") is switched off for now
+### Warehouse: the simple "Ombor" is on, the full warehouse is off
 
 Products are sold without counting quantities; profit is selling price − the product's cost price ("Tannarx").
-The stock menu, stock reports, stock alerts and stock checks of a sale are hidden; movements are still recorded
+**Ombor** (`/shop/warehouse`) records goods that arrived: existing products, quantity, cost per unit and an optional
+supplier / delivery person from **Yetkazib beruvchilar** (`/shop/suppliers`). It can also update the products' cost price, and it shows
+statistics (by day, product and supplier; API `GET /goods-receipts/stats`). Arrivals can be cancelled. The full warehouse
+(stock balances, transfers, write-offs, counts, stock alerts and stock checks of a sale) stays hidden; movements are still recorded
 in the background. To bring it back, set `KASS_INVENTORY=true` (API) and `NEXT_PUBLIC_INVENTORY=true` (web).
 
 ### Cash desk program (Python)

@@ -40,6 +40,10 @@ export function ProductMultiPicker({ value, onChange }: { value: PickedProduct[]
   );
 }
 
+export function useSuppliers() {
+  return useQuery({ queryKey: ['suppliers-all'], queryFn: () => api<any[]>('/suppliers?limit=100&sort=name') });
+}
+
 export function useBranches() {
   return useQuery({ queryKey: ['branches'], queryFn: () => api<any[]>('/branches') });
 }
