@@ -62,6 +62,8 @@ credentials and agent pairings unreadable).
 1. vercel.com → **Add New…** → **Project** → import the GitHub repository.
 2. **Root Directory**: `apps/web` (Edit → choose `apps/web`). Framework: **Next.js** (detected).
 3. **Environment Variables**: `API_URL` = the Render address from step 3 (e.g. `https://online-kass-api.onrender.com`).
+   Do not add `NODE_ENV` here (it belongs to Render only). `apps/web/vercel.json` sets the install
+   command, so leave Build / Install / Output settings on their defaults.
 4. **Deploy**. When it finishes, open the website address (e.g. `https://online-kass.vercel.app`) and log in
    with `admin` / the `SUPERADMIN_PASSWORD` you set.
 
