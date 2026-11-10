@@ -2,17 +2,21 @@ import { Router } from 'express';
 import { z } from 'zod';
 import {
   addDays,
+  tashkentDateString,
+  tashkentDayRange,
   auditQuerySchema,
   blockShopSchema,
   changeShopAdminSchema,
   createShopSchema,
   fiscalSettingsSchema,
+  objectId,
   paginationSchema,
   platformSettingsSchema,
   recordPaymentSchema,
   resetPasswordSchema,
   shopListQuerySchema,
   updateShopSchema,
+  userCredentialsSchema,
 } from '@kass/shared';
 import { audit } from '../../lib/audit';
 import { generatePassword } from '../../lib/crypto';
@@ -45,8 +49,9 @@ import {
   User,
   type ShopDoc,
 } from '../../models/core';
-import { hashSecret, publicShop, publicUser } from '../auth/service';
-import { platformSalesStats } from './stats';
+import { hashSecret, publicShop, publicUser, sealPassword } from '../auth/service';
+import { applyCredentials, withCredentials } from '../shop/credentials';
+import { platformSalesStats, shopStats } from './stats';
 import { clearExpiryFlag } from '../../workers/shopExpiry';
 import { agentHub } from '../agent/hub';
 import { encrypt } from '../../lib/crypto';
@@ -219,6 +224,7 @@ adminRouter.post(
             phone: input.adminPhone,
             login,
             passwordHash,
+            passwordEnc: sealPassword(input.adminPassword),
             branchIds: [branch._id],
             language: input.adminLanguage,
           },
@@ -341,6 +347,7 @@ adminRouter.post(
     if (!admin) throw notFound();
     const newPassword: string = req.body.newPassword ?? generatePassword();
     admin.passwordHash = await hashSecret(newPassword);
+    admin.passwordEnc = sealPassword(newPassword);
     admin.permVersion += 1;
     await admin.save();
     await revokeUserSessions(admin._id);
@@ -379,6 +386,7 @@ adminRouter.post(
             phone: b.phone,
             login,
             passwordHash,
+            passwordEnc: sealPassword(b.password),
             branchIds: branches.map((x) => x._id),
             language: b.language,
           },
@@ -389,6 +397,50 @@ adminRouter.post(
     });
     await platformAudit(req, 'shop.admin_changed', shop._id, { after: { login } });
     created(res, publicUser(admin));
+  }),
+);
+
+/** Statistics of one shop for the platform owner (the Statistics tab of the shop page). */
+adminRouter.get(
+  '/shops/:id/stats',
+  validate({ params: z.object({ id: objectId }), query: z.object({ period: z.enum(['today', '7d', '30d', 'month', 'all']).default('30d') }) }),
+  h(async (req, res) => {
+    const shop = await findShop(req.params.id);
+    const period = (req.query as any).period as 'today' | '7d' | '30d' | 'month' | 'all';
+    const now = new Date();
+    const todayStr = tashkentDateString(now);
+    const to = tashkentDayRange(todayStr).to;
+    const startOf = (d: string) => tashkentDayRange(d).from;
+    const back = (n: number) => startOf(tashkentDateString(new Date(now.getTime() - n * 86_400_000)));
+    const from = period === 'today' ? startOf(todayStr) : period === '7d' ? back(6) : period === '30d' ? back(29) : period === 'month' ? startOf(todayStr.slice(0, 8) + '01') : undefined;
+    ok(res, { period, from: from ?? null, to, currency: shop.currency, ...(await shopStats(shop._id, from, to)) });
+  }),
+);
+
+/* ------------------------------------------------- users of a shop: logins and passwords */
+
+/** Every account of the shop (owner and staff) with login and password, for the platform owner. */
+adminRouter.get(
+  '/shops/:id/users',
+  idParams,
+  h(async (req, res) => {
+    const shop = await findShop(req.params.id);
+    const users = await User.find({ shopId: shop._id }).sort({ role: 1, isActive: -1, fullName: 1 });
+    await platformAudit(req, 'shop.credentials_viewed', shop._id);
+    ok(res, users.map(withCredentials));
+  }),
+);
+
+adminRouter.patch(
+  '/shops/:id/users/:userId',
+  validate({ params: z.object({ id: objectId, userId: objectId }), body: userCredentialsSchema }),
+  h(async (req, res) => {
+    const shop = await findShop(req.params.id);
+    const u = await User.findOne({ _id: req.params.userId, shopId: shop._id });
+    if (!u) throw notFound('USER_NOT_FOUND');
+    const r = await applyCredentials(u, req.body);
+    await platformAudit(req, 'shop.user_credentials_changed', shop._id, { after: { userId: String(u._id), login: u.login, ...r } });
+    ok(res, withCredentials(u));
   }),
 );
 

@@ -157,3 +157,7 @@ export function inventoryEnabled(): boolean {
 
 /** Reports that only make sense with the warehouse. */
 export const INVENTORY_REPORTS = ['stock', 'stock-movement', 'negative-stock', 'slow-moving'] as const;
+
+/** Kinds of entries in the history (web History page and the cash-desk program's History window). */
+export const HISTORY_TYPES = ['sale', 'declined', 'refund', 'arrival', 'shift', 'cash'] as const;
+export type HistoryType = (typeof HISTORY_TYPES)[number];

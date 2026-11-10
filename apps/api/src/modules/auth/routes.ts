@@ -25,7 +25,7 @@ import {
 import { assertShopUsable, authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/core';
 import { Session, Shop, Terminal, User, type ShopDoc, type UserDoc } from '../../models/core';
-import { burnPasswordCheck, compareSecret, hashSecret, homeFor, publicShop, publicUser } from './service';
+import { burnPasswordCheck, compareSecret, hashSecret, homeFor, publicShop, publicUser, sealPassword } from './service';
 
 /** How long the just-rotated refresh token is still accepted (requests racing the rotation). */
 const REFRESH_RACE_MS = 60_000;
@@ -75,6 +75,8 @@ authRouter.post(
       throw unauthorized('INVALID_CREDENTIALS');
     }
     if (!user.isActive) throw forbidden('USER_INACTIVE');
+    // passwords set before they were kept become visible to the owner after the next sign-in
+    if (user.role !== 'superadmin' && !user.passwordEnc) await User.updateOne({ _id: user._id }, { $set: { passwordEnc: sealPassword(password) } }).setOptions({ crossTenant: true });
 
     const shop = await loadShop(user);
     if (user.role !== 'superadmin') await assertShopUsable(shop);
@@ -226,6 +228,7 @@ authRouter.post(
     const { currentPassword, newPassword } = req.body as z.infer<typeof changePasswordBodySchema>;
     if (!(await compareSecret(currentPassword, a.user.passwordHash))) throw badRequest('WRONG_PASSWORD');
     a.user.passwordHash = await hashSecret(newPassword);
+    if (a.user.role !== 'superadmin') a.user.passwordEnc = sealPassword(newPassword);
     a.user.permVersion += 1;
     await a.user.save();
     await revokeUserSessions(a.userId);

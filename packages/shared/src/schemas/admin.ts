@@ -109,3 +109,12 @@ export const auditQuerySchema = paginationSchema.extend({
   from: isoDate.optional(),
   to: isoDate.optional(),
 });
+
+/** Superadmin (any user of a shop) or shop owner (their staff): change the login, password or name. */
+export const userCredentialsSchema = z
+  .object({
+    login: loginSchema.optional(),
+    password: passwordSchema.optional(),
+    fullName: z.string().trim().min(1).max(100).optional(),
+  })
+  .refine((v) => v.login !== undefined || v.password !== undefined || v.fullName !== undefined, 'Nothing to change');

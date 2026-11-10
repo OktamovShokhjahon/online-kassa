@@ -9,6 +9,7 @@ import {
   staffResetPasswordSchema,
   staffStatusSchema,
   staffUpdateSchema,
+  userCredentialsSchema,
   type Permission,
   type Role,
 } from '@kass/shared';
@@ -21,7 +22,8 @@ import { escapeRegex, oid, parseSort } from '../../lib/util';
 import { authenticate, can, requirePermission } from '../../middleware/auth';
 import { validate } from '../../middleware/core';
 import { Branch, User, type UserDoc } from '../../models/core';
-import { hashSecret, publicUser } from '../auth/service';
+import { hashSecret, publicUser, sealPassword } from '../auth/service';
+import { applyCredentials, withCredentials } from './credentials';
 import type { AuthContext } from '../../types';
 
 export const staffRouter = Router();
@@ -78,7 +80,21 @@ staffRouter.get(
       filter.$or = [{ fullName: rx }, { login: rx }, { phone: rx }];
     }
     const { items, meta } = await repo(req, User).paginate(filter, { page: q.page, limit: q.limit, sort: parseSort(q.sort, ['fullName', 'login', 'role', 'createdAt'], 'fullName') });
-    ok(res, items.map((u) => publicUser(u as UserDoc)), meta);
+    // isActive is needed by the staff table (status badge, activate / deactivate button)
+    ok(res, items.map((u) => ({ ...publicUser(u as UserDoc), isActive: (u as UserDoc).isActive, lastLoginAt: (u as any).lastLoginAt ?? null })), meta);
+  }),
+);
+
+/** The shop owner sees the login and password of every employee (not of other owners). */
+staffRouter.get(
+  '/credentials',
+  h(async (req, res) => {
+    const a = auth(req);
+    if (a.role !== 'shop_admin') throw forbidden();
+    const users = await repo(req, User).find({ role: { $ne: 'shop_admin' } });
+    users.sort((x: any, y: any) => Number(y.isActive) - Number(x.isActive) || String(x.fullName).localeCompare(String(y.fullName)));
+    await audit(req, { action: 'staff.credentials_viewed', entity: 'user' });
+    ok(res, users.map((u: any) => withCredentials(u)));
   }),
 );
 
@@ -91,6 +107,23 @@ staffRouter.get(
     if (!u) throw notFound('USER_NOT_FOUND');
     if (u.role !== 'shop_admin') assertCanManage(a, u);
     ok(res, publicUser(u));
+  }),
+);
+
+/** The shop owner changes an employee's login, password or name. */
+staffRouter.patch(
+  '/:id/credentials',
+  idParams,
+  validate({ body: userCredentialsSchema }),
+  h(async (req, res) => {
+    const a = auth(req);
+    if (a.role !== 'shop_admin') throw forbidden();
+    const u = await repo(req, User).findById(req.params.id);
+    if (!u) throw notFound('USER_NOT_FOUND');
+    if (u.role === 'shop_admin') throw forbidden('CANNOT_MODIFY_ADMIN');
+    const r = await applyCredentials(u as any, req.body);
+    await audit(req, { action: 'staff.credentials_changed', entity: 'user', entityId: u._id, meta: r });
+    ok(res, withCredentials(u as any));
   }),
 );
 
@@ -118,6 +151,7 @@ staffRouter.post(
       phone: b.phone,
       login,
       passwordHash: await hashSecret(b.password),
+      passwordEnc: sealPassword(b.password),
       pinHash: b.pin ? await hashSecret(b.pin) : undefined,
       branchIds: b.branchIds.map(oid),
       permissions: extraPermissions(role, b.permissions as Permission[], a),
@@ -172,6 +206,7 @@ staffRouter.post(
     assertCanManage(a, u);
     const newPassword = req.body.newPassword ?? generatePassword();
     u.passwordHash = await hashSecret(newPassword);
+    u.passwordEnc = sealPassword(newPassword);
     u.permVersion += 1;
     await u.save();
     await revokeUserSessions(u._id);

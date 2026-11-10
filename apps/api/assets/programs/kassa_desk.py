@@ -180,6 +180,58 @@ TEXT = {
         "printer_ok": "Test page sent to the printer", "shift_by": "Shift of {name}", "added": "{name}  {price}",
         "offline_receipt": "*** OFFLINE ***", "printed_to": "Printed to {target}", "quit_confirm": "The receipt is not finished. Close the program anyway?",
         "settings_hint": "Changes apply at once. The key is shown only in this window.",
+        "history": "History",
+        "history_title": "History of this cash desk",
+        "h_all": "Everything",
+        "h_sale": "Sales",
+        "h_declined": "Declined",
+        "h_refund": "Refunds",
+        "h_arrival": "Goods received",
+        "h_shift": "Shifts",
+        "h_cash": "Cash in/out",
+        "p_today": "Today",
+        "p_yesterday": "Yesterday",
+        "p_7d": "Last 7 days",
+        "p_30d": "Last 30 days",
+        "p_all": "All time",
+        "find": "Find",
+        "load_more": "Show more",
+        "refresh": "Refresh",
+        "period": "Period",
+        "search_hint": "Number or product",
+        "col_time": "Time",
+        "col_type": "Type",
+        "col_number": "No",
+        "col_details": "Details",
+        "col_amount": "Amount",
+        "col_status": "Status",
+        "st_completed": "approved",
+        "st_partially_refunded": "partly refunded",
+        "st_refunded": "refunded",
+        "st_cleared": "cleared by cashier",
+        "st_rejected": "refused: {code}",
+        "st_posted": "received",
+        "st_cancelled": "cancelled",
+        "st_open": "shift opened",
+        "st_close": "shift closed",
+        "st_in": "cash in",
+        "st_out": "cash out",
+        "st_pending": "waiting to be sent",
+        "h_offline": "No connection: only the sales waiting on this computer are shown.",
+        "h_empty": "Nothing found for this filter.",
+        "h_summary": "Sales: {s} ({sa})   Declined: {d}   Refunds: {r}   Goods received: {a}",
+        "h_shown": "Shown {n} of {total}",
+        "details": "Details",
+        "print_again": "Print again",
+        "no_supplier": "supplier not set",
+        "from_supplier": "from {name}",
+        "h_loading": "Loading…",
+        "r_sale": "Sale",
+        "r_declined": "Declined",
+        "r_refund": "Refund",
+        "r_arrival": "Goods received",
+        "r_shift": "Shift",
+        "r_cash": "Cash",
     },
     "ru": {
         "today": "Сегодня: {n} чеков · {sum}",
@@ -220,6 +272,58 @@ TEXT = {
         "printer_ok": "Тестовая страница отправлена на принтер", "shift_by": "Смена: {name}", "added": "{name}  {price}",
         "offline_receipt": "*** БЕЗ СВЯЗИ ***", "printed_to": "Напечатано: {target}", "quit_confirm": "Чек не завершён. Всё равно закрыть программу?",
         "settings_hint": "Изменения применяются сразу. Ключ виден только в этом окне.",
+        "history": "История",
+        "history_title": "История этой кассы",
+        "h_all": "Всё",
+        "h_sale": "Продажи",
+        "h_declined": "Отклонённые",
+        "h_refund": "Возвраты",
+        "h_arrival": "Приход товара",
+        "h_shift": "Смены",
+        "h_cash": "Внесение/изъятие",
+        "p_today": "Сегодня",
+        "p_yesterday": "Вчера",
+        "p_7d": "Последние 7 дней",
+        "p_30d": "Последние 30 дней",
+        "p_all": "Всё время",
+        "find": "Найти",
+        "load_more": "Показать ещё",
+        "refresh": "Обновить",
+        "period": "Период",
+        "search_hint": "Номер или товар",
+        "col_time": "Время",
+        "col_type": "Тип",
+        "col_number": "№",
+        "col_details": "Подробно",
+        "col_amount": "Сумма",
+        "col_status": "Статус",
+        "st_completed": "принят",
+        "st_partially_refunded": "частичный возврат",
+        "st_refunded": "возвращён",
+        "st_cleared": "очищен кассиром",
+        "st_rejected": "отказ: {code}",
+        "st_posted": "принят",
+        "st_cancelled": "отменён",
+        "st_open": "смена открыта",
+        "st_close": "смена закрыта",
+        "st_in": "внесение",
+        "st_out": "изъятие",
+        "st_pending": "ждёт отправки",
+        "h_offline": "Нет связи: показаны только продажи, ожидающие отправки на этом компьютере.",
+        "h_empty": "По этому фильтру ничего нет.",
+        "h_summary": "Продажи: {s} ({sa})   Отклонённые: {d}   Возвраты: {r}   Приходы: {a}",
+        "h_shown": "Показано {n} из {total}",
+        "details": "Подробно",
+        "print_again": "Напечатать снова",
+        "no_supplier": "поставщик не указан",
+        "from_supplier": "от {name}",
+        "h_loading": "Загрузка…",
+        "r_sale": "Продажа",
+        "r_declined": "Отклонён",
+        "r_refund": "Возврат",
+        "r_arrival": "Приход",
+        "r_shift": "Смена",
+        "r_cash": "Деньги",
     },
     "uz": {
         "today": "Bugun: {n} ta chek · {sum}",
@@ -260,6 +364,58 @@ TEXT = {
         "printer_ok": "Sinov sahifasi printerga yuborildi", "shift_by": "Smena: {name}", "added": "{name}  {price}",
         "offline_receipt": "*** OFLAYN ***", "printed_to": "Chop etildi: {target}", "quit_confirm": "Chek tugallanmagan. Baribir dasturni yopasizmi?",
         "settings_hint": "O'zgarishlar darhol qo'llanadi. Kalit faqat shu oynada ko'rinadi.",
+        "history": "Tarix",
+        "history_title": "Shu kassa tarixi",
+        "h_all": "Hammasi",
+        "h_sale": "Sotuvlar",
+        "h_declined": "Rad etilganlar",
+        "h_refund": "Qaytarishlar",
+        "h_arrival": "Kelgan mahsulotlar",
+        "h_shift": "Smenalar",
+        "h_cash": "Kirim/chiqim pul",
+        "p_today": "Bugun",
+        "p_yesterday": "Kecha",
+        "p_7d": "Oxirgi 7 kun",
+        "p_30d": "Oxirgi 30 kun",
+        "p_all": "Hammasi",
+        "find": "Topish",
+        "load_more": "Yana ko'rsatish",
+        "refresh": "Yangilash",
+        "period": "Davr",
+        "search_hint": "Raqam yoki mahsulot",
+        "col_time": "Vaqt",
+        "col_type": "Turi",
+        "col_number": "Raqam",
+        "col_details": "Tafsilot",
+        "col_amount": "Summa",
+        "col_status": "Holat",
+        "st_completed": "tasdiqlangan",
+        "st_partially_refunded": "qisman qaytarilgan",
+        "st_refunded": "qaytarilgan",
+        "st_cleared": "kassir tozalagan",
+        "st_rejected": "rad etildi: {code}",
+        "st_posted": "qabul qilingan",
+        "st_cancelled": "bekor qilingan",
+        "st_open": "smena ochildi",
+        "st_close": "smena yopildi",
+        "st_in": "pul kiritildi",
+        "st_out": "pul olindi",
+        "st_pending": "yuborilishini kutmoqda",
+        "h_offline": "Aloqa yo'q: faqat shu kompyuterda yuborilishini kutayotgan savdolar ko'rsatilgan.",
+        "h_empty": "Bu filtr bo'yicha hech narsa topilmadi.",
+        "h_summary": "Sotuvlar: {s} ({sa})   Rad etilgan: {d}   Qaytarishlar: {r}   Kirimlar: {a}",
+        "h_shown": "{total} tadan {n} tasi ko'rsatilgan",
+        "details": "Tafsilot",
+        "print_again": "Qayta chop etish",
+        "no_supplier": "yetkazib beruvchi ko'rsatilmagan",
+        "from_supplier": "{name} dan",
+        "h_loading": "Yuklanmoqda…",
+        "r_sale": "Sotuv",
+        "r_declined": "Rad etilgan",
+        "r_refund": "Qaytarish",
+        "r_arrival": "Kirim",
+        "r_shift": "Smena",
+        "r_cash": "Pul",
     },
 }
 
@@ -1016,6 +1172,45 @@ class Outbox:
             sent += 1
 
 
+class DeclinedQueue:
+    """Receipts the cashier cleared before payment, kept on disk until the server has them (shown in History)."""
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.items = read_json("declined.json", [])
+
+    def add(self, event: dict) -> None:
+        with self.lock:
+            self.items.append(event)
+            self.items = self.items[-500:]
+            write_json("declined.json", self.items)
+
+    def count(self) -> int:
+        with self.lock:
+            return len(self.items)
+
+    def flush(self, api: Api) -> int:
+        sent = 0
+        while True:
+            with self.lock:
+                if not self.items:
+                    return sent
+                ev = self.items[0]
+            try:
+                api.call("POST", "/declined", ev)
+            except NetworkError:
+                return sent
+            except ApiError as e:
+                if e.retryable:
+                    return sent
+                log.error("declined receipt not accepted: %s %s", e.code, e.message)
+            with self.lock:
+                if self.items and self.items[0] is ev:
+                    self.items.pop(0)
+                    write_json("declined.json", self.items)
+            sent += 1
+
+
 def _now_iso() -> str:
     n = datetime.now(timezone.utc)
     return n.strftime("%Y-%m-%dT%H:%M:%S.") + "%03dZ" % (n.microsecond // 1000)
@@ -1225,6 +1420,311 @@ class Modal(tk.Toplevel):
         return ok
 
 
+def _period_range(key: str):
+    """(from, to) as UTC ISO strings for a period key, in this computer's local time."""
+    now = datetime.now().astimezone()
+    start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    day = 86400
+    if key == "today":
+        a, b = start, None
+    elif key == "yesterday":
+        a, b = datetime.fromtimestamp(start.timestamp() - day).astimezone(), start
+    elif key == "7d":
+        a, b = datetime.fromtimestamp(start.timestamp() - 6 * day).astimezone(), None
+    elif key == "30d":
+        a, b = datetime.fromtimestamp(start.timestamp() - 29 * day).astimezone(), None
+    else:
+        return None, None
+
+    def iso(d):
+        return d.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z") if d else None
+
+    return iso(a), iso(b)
+
+
+class HistoryWindow(tk.Toplevel):
+    """Sales, declined receipts, refunds, goods received and shifts of this cash desk, with filters."""
+
+    TYPES = ("all", "sale", "declined", "refund", "arrival", "shift")
+    PERIODS = ("today", "yesterday", "7d", "30d", "all")
+    PAGE = 50
+
+    def __init__(self, app):
+        super().__init__(app.root)
+        self.app = app
+        self.title("Online Kass - " + tr("history_title"))
+        self.configure(bg=C["bg"], padx=16, pady=14)
+        self.geometry("1100x640")
+        self.minsize(820, 460)
+        self.protocol("WM_DELETE_WINDOW", self.close)
+        self.bind("<Escape>", lambda e: self.close())
+        self.rows = {}
+        self.page = 1
+        self.total = 0
+        self.loading = False
+
+        top = tk.Frame(self, bg=C["bg"])
+        top.pack(fill="x")
+        tk.Label(top, text=tr("history_title"), bg=C["bg"], fg=C["fg"], font=F["title"]).pack(side="left")
+        make_button(top, tr("refresh"), self.reload, "ghost", "sm").pack(side="right")
+
+        bar = tk.Frame(self, bg=C["surface"], highlightthickness=1, highlightbackground=C["border"], padx=12, pady=10)
+        bar.pack(fill="x", pady=(10, 0))
+        self._type_labels = {tr("h_" + t): t for t in self.TYPES}
+        self._period_labels = {tr("p_" + p): p for p in self.PERIODS}
+        self.type_var = tk.StringVar(value=tr("h_all"))
+        self.period_var = tk.StringVar(value=tr("p_today"))
+        self.q_var = tk.StringVar()
+        tk.Label(bar, text=tr("col_type"), bg=C["surface"], fg=C["muted"], font=F["small"]).pack(side="left")
+        tc = ttk.Combobox(bar, textvariable=self.type_var, values=list(self._type_labels), state="readonly", width=20)
+        tc.pack(side="left", padx=(6, 14))
+        tc.bind("<<ComboboxSelected>>", lambda e: self.reload())
+        tk.Label(bar, text=tr("period"), bg=C["surface"], fg=C["muted"], font=F["small"]).pack(side="left")
+        pc = ttk.Combobox(bar, textvariable=self.period_var, values=list(self._period_labels), state="readonly", width=18)
+        pc.pack(side="left", padx=(6, 14))
+        pc.bind("<<ComboboxSelected>>", lambda e: self.reload())
+        tk.Label(bar, text=tr("search_hint"), bg=C["surface"], fg=C["muted"], font=F["small"]).pack(side="left")
+        e = tk.Entry(bar, textvariable=self.q_var, font=F["base"], relief="flat", bg=C["surface2"], fg=C["fg"], highlightthickness=1, highlightbackground=C["border"], width=24)
+        e.pack(side="left", ipady=4, padx=(6, 0))
+        e.bind("<Return>", lambda ev: self.reload())
+        make_button(bar, tr("find"), self.reload, "primary", "sm").pack(side="left", padx=(8, 0))
+
+        self.summary_lbl = tk.Label(self, bg=C["bg"], fg=C["fg"], font=F["small_b"], anchor="w", justify="left")
+        self.summary_lbl.pack(fill="x", pady=(10, 4))
+
+        card = tk.Frame(self, bg=C["surface"], highlightthickness=1, highlightbackground=C["border"])
+        card.pack(fill="both", expand=True)
+        cols = ("time", "type", "number", "details", "amount", "status")
+        self.tree = ttk.Treeview(card, columns=cols, show="headings", style="Cart.Treeview", selectmode="browse")
+        for col, w, anchor, stretch in (("time", 120, "w", False), ("type", 150, "w", False), ("number", 110, "w", False), ("details", 360, "w", True), ("amount", 130, "e", False), ("status", 190, "w", False)):
+            self.tree.heading(col, text=tr("col_" + col), anchor=anchor)
+            self.tree.column(col, width=w, anchor=anchor, stretch=stretch, minwidth=60)
+        self.tree.tag_configure("declined", foreground=C["danger"])
+        self.tree.tag_configure("refund", foreground=C["warn"])
+        self.tree.tag_configure("arrival", foreground=C["primary"])
+        self.tree.tag_configure("shift", foreground=C["muted"])
+        self.tree.tag_configure("cash", foreground=C["muted"])
+        self.tree.tag_configure("pending", foreground=C["warn"])
+        sb = ttk.Scrollbar(card, orient="vertical", command=self.tree.yview, style="Desk.Vertical.TScrollbar")
+        self.tree.configure(yscrollcommand=sb.set)
+        sb.pack(side="right", fill="y")
+        self.tree.pack(side="left", fill="both", expand=True)
+        self.tree.bind("<Double-1>", lambda ev: self.show_details())
+        self.tree.bind("<Return>", lambda ev: self.show_details())
+
+        bottom = tk.Frame(self, bg=C["bg"])
+        bottom.pack(fill="x", pady=(8, 0))
+        self.status_lbl = tk.Label(bottom, bg=C["bg"], fg=C["muted"], font=F["small"], anchor="w")
+        self.status_lbl.pack(side="left")
+        make_button(bottom, tr("details"), self.show_details, "ghost", "sm").pack(side="right")
+        self.more_btn = make_button(bottom, tr("load_more"), self.load_more, "secondary", "sm")
+        self.more_btn.pack(side="right", padx=(0, 6))
+        self.reload()
+
+    def close(self):
+        self.app.history_win = None
+        self.destroy()
+        self.app.focus_scan()
+
+    # ------------------------------------------------------------------ data
+
+    def _params(self, page):
+        t = self._type_labels.get(self.type_var.get(), "all")
+        a, b = _period_range(self._period_labels.get(self.period_var.get(), "today"))
+        p = {"page": page, "limit": self.PAGE}
+        if t != "all":
+            p["type"] = t
+        if a:
+            p["from"] = a
+        if b:
+            p["to"] = b
+        q = self.q_var.get().strip()
+        if q:
+            p["q"] = q
+        return p
+
+    def reload(self):
+        self.page = 1
+        self.total = 0
+        self.tree.delete(*self.tree.get_children())
+        self.rows = {}
+        self._fetch(1)
+
+    def load_more(self):
+        if not self.loading and self._shown() < self.total:
+            self._fetch(self.page + 1)
+
+    def _shown(self):
+        return sum(1 for k in self.rows if not k.startswith("pending:"))
+
+    def _fetch(self, page):
+        self.loading = True
+        self.status_lbl.configure(text=tr("h_loading"))
+        path = "/history?" + urllib.parse.urlencode(self._params(page))
+        # Api.call() returns only "data"; the history also needs "meta" (total, summary)
+        self.app.bg(lambda: self._call_full(path), lambda r: self._loaded(page, r), self._failed)
+
+    def _call_full(self, path):
+        api = self.app.api
+        if not api.configured:
+            raise ApiError(0, "NOT_CONFIGURED", tr("not_configured"))
+        req = urllib.request.Request(api.base + "/desk" + path, method="GET")
+        req.add_header("Authorization", "Bearer " + api.key)
+        req.add_header("Accept", "application/json")
+        req.add_header("Accept-Language", LANG)
+        req.add_header("User-Agent", "OnlineKassDesk/" + VERSION)
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                payload = json.loads(r.read().decode("utf-8") or "{}")
+            api._status(True)
+            return payload
+        except urllib.error.HTTPError as e:
+            try:
+                err = json.loads(e.read().decode("utf-8")).get("error") or {}
+            except Exception:
+                err = {}
+            api._status(e.code < 500)
+            if e.code in (502, 503, 504):
+                raise NetworkError("HTTP %d" % e.code)
+            raise ApiError(e.code, err.get("code") or ("HTTP_%d" % e.code), err.get("message") or str(e))
+        except (urllib.error.URLError, socket.timeout, ConnectionError, OSError) as e:
+            api._status(False)
+            raise NetworkError(str(getattr(e, "reason", e)))
+
+    def _alive(self):
+        try:
+            return bool(self.winfo_exists())
+        except tk.TclError:
+            return False
+
+    def _loaded(self, page, payload):
+        if not self._alive():
+            return
+        self.loading = False
+        self.page = page
+        meta = payload.get("meta") or {}
+        self.total = int(meta.get("total") or 0)
+        if page == 1:
+            self._insert_pending()
+        for it in payload.get("data") or []:
+            self._insert(it)
+        sm = meta.get("summary") or {}
+        cur = self.app.currency
+
+        def g(k):
+            return sm.get(k) or {}
+
+        self.summary_lbl.configure(text=tr("h_summary", s=g("sale").get("count", 0), sa=fmt_money(g("sale").get("amount", 0), cur), d=g("declined").get("count", 0), r=g("refund").get("count", 0), a=g("arrival").get("count", 0)))
+        self.status_lbl.configure(text=tr("h_empty") if not self.rows else tr("h_shown", n=self._shown(), total=self.total))
+        set_enabled(self.more_btn, self._shown() < self.total)
+
+    def _failed(self, e):
+        if not self._alive():
+            return
+        self.loading = False
+        if isinstance(e, NetworkError):
+            if not self.rows:
+                self._insert_pending()
+            self.status_lbl.configure(text=tr("h_offline"))
+            self.summary_lbl.configure(text="")
+        else:
+            self.status_lbl.configure(text=str(getattr(e, "message", e)))
+        set_enabled(self.more_btn, False)
+
+    def _insert_pending(self):
+        """Sales made offline and not yet on the server: shown on top, only in this window."""
+        if self._type_labels.get(self.type_var.get(), "all") not in ("all", "sale"):
+            return
+        with self.app.outbox.lock:
+            pending = list(self.app.outbox.items)
+        for i, body in enumerate(reversed(pending)):
+            lines = body.get("lines") or []
+            amount = sum(line_gross(l.get("qty") or 0, l.get("price") or 0) for l in lines)
+            self._insert({
+                "id": "pending:%d" % i, "type": "sale", "kind": "pending", "at": body.get("createdAt"), "number": body.get("localNumber"), "amount": amount,
+                "items": [{"name": self._product_name(l.get("productId")), "qty": l.get("qty")} for l in lines],
+            })
+
+    def _product_name(self, pid):
+        return (self.app.catalog.by_id.get(pid) or {}).get("name") or "?"
+
+    def _status_text(self, it):
+        k = it.get("kind") or it.get("status") or ""
+        if it["type"] == "declined":
+            return tr("st_rejected", code=it.get("note") or "") if k == "rejected" else tr("st_cleared")
+        if it["type"] == "refund":
+            return it.get("note") or ""
+        if k == "pending":
+            return tr("st_pending")
+        key = "st_" + k
+        txt = tr(key)
+        return txt if txt != key else k
+
+    def _details_text(self, it):
+        parts = ["%s x%s" % (x.get("name") or "?", fmt_qty(x.get("qty") or 0)) for x in (it.get("items") or [])]
+        txt = ", ".join(parts[:4]) + (" ..." if len(parts) > 4 else "")
+        if it["type"] == "arrival":
+            sup = it.get("supplierName")
+            txt = (tr("from_supplier", name=sup) if sup else tr("no_supplier")) + (": " + txt if txt else "")
+        elif it["type"] in ("shift", "cash"):
+            txt = " ".join(x for x in (it.get("cashierName"), it.get("note") if it.get("note") != "auto" else "") if x)
+        return txt
+
+    def _insert(self, it):
+        if it["id"] in self.rows:
+            return
+        self.rows[it["id"]] = it
+        when = local_time(it.get("at") or "", "%d.%m %H:%M")
+        amount = it.get("amount") or 0
+        sign = "-" if it["type"] == "refund" or (it["type"] == "cash" and it.get("kind") == "out") else ""
+        amt = "" if it["type"] == "shift" and not amount else sign + fmt_money(amount, self.app.currency)
+        tag = "pending" if it.get("kind") == "pending" else it["type"]
+        self.tree.insert("", "end", iid=it["id"], values=(when, tr("r_" + it["type"]), it.get("number") or "", self._details_text(it), amt, self._status_text(it)), tags=(tag,))
+
+    # ------------------------------------------------------------------ details
+
+    def show_details(self):
+        sel = self.tree.selection()
+        it = self.rows.get(sel[0]) if sel else None
+        if not it:
+            return
+        d = tk.Toplevel(self)
+        d.title(tr("details"))
+        d.configure(bg=C["surface"], padx=22, pady=18)
+        d.transient(self)
+        d.bind("<Escape>", lambda e: d.destroy())
+        tk.Label(d, text="%s %s" % (tr("r_" + it["type"]), it.get("number") or ""), bg=C["surface"], fg=C["fg"], font=F["title"], anchor="w").pack(fill="x")
+        sub = "  |  ".join(x for x in (local_time(it.get("at") or "", "%d.%m.%Y %H:%M"), self._status_text(it), it.get("cashierName") or "", it.get("terminalName") or "") if x)
+        tk.Label(d, text=sub, bg=C["surface"], fg=C["muted"], font=F["label"], anchor="w", justify="left", wraplength=520).pack(fill="x", pady=(2, 10))
+        for x in it.get("items") or []:
+            row = tk.Frame(d, bg=C["surface"])
+            row.pack(fill="x")
+            tk.Label(row, text=x.get("name") or "?", bg=C["surface"], fg=C["fg"], font=F["row"], anchor="w").pack(side="left")
+            tk.Label(row, text="x " + fmt_qty(x.get("qty") or 0), bg=C["surface"], fg=C["muted"], font=F["row"]).pack(side="right", padx=(24, 0))
+        if it["type"] == "arrival":
+            tk.Label(d, text=tr("from_supplier", name=it["supplierName"]) if it.get("supplierName") else tr("no_supplier"), bg=C["surface"], fg=C["muted"], font=F["label"], anchor="w").pack(fill="x", pady=(8, 0))
+        if it.get("note") and it["type"] in ("refund", "cash", "arrival"):
+            tk.Label(d, text=it["note"], bg=C["surface"], fg=C["muted"], font=F["label"], anchor="w", wraplength=520, justify="left").pack(fill="x", pady=(6, 0))
+        tk.Label(d, text=fmt_money(it.get("amount") or 0, self.app.currency), bg=C["surface"], fg=C["fg"], font=F["big"], anchor="e").pack(fill="x", pady=(12, 0))
+        row = tk.Frame(d, bg=C["surface"])
+        row.pack(fill="x", pady=(14, 0))
+        make_button(row, tr("cancel"), d.destroy, "secondary").pack(side="right")
+        if it["type"] == "sale" and it.get("kind") != "pending":
+            make_button(row, tr("print_again"), lambda: (self._reprint(it["id"]), d.destroy()), "primary").pack(side="right", padx=(0, 8))
+        d.update_idletasks()
+        d.geometry("+%d+%d" % (self.winfo_rootx() + 120, self.winfo_rooty() + 80))
+        d.focus_set()
+
+    def _reprint(self, sale_id):
+        pr = dict(self.app.settings.get("printer") or {})
+
+        def work():
+            receipt = self.app.api.call("GET", "/sales/%s/receipt" % sale_id)
+            return send_to_printer(render_receipt(receipt, pr), pr)
+
+        self.app.bg(work, self.app._printed, self.app._print_failed)
+
+
 class DeskApp:
     def __init__(self, root):
         self.root = root
@@ -1236,6 +1736,8 @@ class DeskApp:
         self.catalog = Catalog(read_json("catalog.json", []))
         self.session = read_json("session.json", None)
         self.outbox = Outbox()
+        self.declined = DeclinedQueue()
+        self.history_win = None
         self.cart = []
         self.version = 0
         self.quote = None
@@ -1309,6 +1811,8 @@ class DeskApp:
                     if self.outbox.flush(self.api):
                         self.post(self._update_footer)
                         last_session = 0
+                if self.declined.count():
+                    self.declined.flush(self.api)
                 now = time.time()
                 if now - last_session > 30:
                     last_session = now
@@ -1376,6 +1880,7 @@ class DeskApp:
         self.receipt_lbl = tk.Label(foot, bg=C["surface"], fg=C["muted"], font=F["small"])
         self.receipt_lbl.pack(side="left", padx=(18, 0))
         make_button(foot, tr("settings"), self.open_settings, "ghost", "sm").pack(side="right")
+        make_button(foot, tr("history") + "  F5", self.open_history, "ghost", "sm").pack(side="right", padx=(0, 6))
         self.reprint_btn = make_button(foot, tr("reprint"), self.reprint, "ghost", "sm")
         self.reprint_btn.pack(side="right", padx=(0, 6))
 
@@ -1463,8 +1968,9 @@ class DeskApp:
         self.clear_btn.pack(fill="x", pady=(8, 0))
 
         r = self.root
-        for seq in ("<F9>", "<F12>", "<F2>", "<Delete>", "<Escape>"):
+        for seq in ("<F9>", "<F12>", "<F2>", "<Delete>", "<Escape>", "<F5>"):
             r.unbind_all(seq)
+        r.bind_all("<F5>", lambda e: self.open_history())
         r.bind_all("<F9>", lambda e: self.pay("cash"))
         r.bind_all("<F12>", lambda e: self.pay("card"))
         r.bind_all("<F2>", lambda e: self.ask_qty())
@@ -1740,10 +2246,22 @@ class DeskApp:
         if self.root.grab_current() is not None or not self.cart or self.busy:
             return
         if messagebox.askyesno("Online Kass", tr("confirm_clear"), parent=self.root):
+            self._record_cleared(self.cart)
             self.cart = []
             self.pending_marked = None
             self.changed()
         self.focus_scan()
+
+    def _record_cleared(self, cart):
+        """Keeps the cleared receipt for the History (sent to the server in the background)."""
+        try:
+            lines = [{"productId": l["product"]["id"], "name": l["product"]["name"], "qty": l["qty"], "price": l["product"].get("price") or 0} for l in cart]
+            if not lines:
+                return
+            _, _, total, _ = self.totals()
+            self.declined.add({"clientEventId": uuid.uuid4().hex, "lines": lines, "total": int(total or 0), "createdAt": _now_iso()})
+        except Exception:
+            log.exception("could not record the cleared receipt")
 
     def ask_qty(self, product=None):
         if self.busy or self.root.grab_current() is not None:
@@ -1942,6 +2460,17 @@ class DeskApp:
         self.printer_note = tr("printing_failed", err=e)
         self._update_footer()
         self.flash(self.printer_note, "error")
+
+    def open_history(self):
+        if self.history_win is not None:
+            try:
+                self.history_win.deiconify()
+                self.history_win.lift()
+                self.history_win.focus_set()
+                return
+            except tk.TclError:
+                self.history_win = None
+        self.history_win = HistoryWindow(self)
 
     # ------------------------------------------------------------------ shift
 

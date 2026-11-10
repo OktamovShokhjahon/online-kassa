@@ -1,7 +1,7 @@
 import type { Types } from 'mongoose';
 import { Router, type Request, type RequestHandler } from 'express';
 import { z } from 'zod';
-import { applyPromotions, isoDate, moneySchema, objectId, qtySchema, tashkentDateString, type CartLine } from '@kass/shared';
+import { applyPromotions, deskDeclinedSchema, historyQuerySchema, isoDate, moneySchema, objectId, qtySchema, tashkentDateString, type CartLine } from '@kass/shared';
 import { auditSystem } from '../../lib/audit';
 import { runFiscal } from '../../lib/fiscal/service';
 import { forbidden, notFound, unprocessable } from '../../lib/errors';
@@ -11,7 +11,9 @@ import { escapeRegex } from '../../lib/util';
 import { validate } from '../../middleware/core';
 import { Category, Price, Product } from '../../models/catalog';
 import { Branch, Terminal, User } from '../../models/core';
-import { Shift } from '../../models/sales';
+import { DeclinedSale, Sale, Shift } from '../../models/sales';
+import { AppError } from '../../lib/errors';
+import { historyFeed } from '../history/feed';
 import type { AuthContext } from '../../types';
 import { authenticateApiKey } from '../developers/apiKeys';
 import { buildSaleReceipt } from '../pos/receipt';
@@ -306,6 +308,39 @@ deskRouter.post(
   h(async (req, res) => {
     const d = await desk(req);
     const b = req.body as z.infer<typeof deskSaleSchema>;
+    try {
+      await deskSale(req, res, d, b);
+    } catch (e) {
+      // a refused receipt is kept in the history as "declined" (network errors never reach here)
+      if (e instanceof AppError) await recordRejected(d, b, e).catch(() => undefined);
+      throw e;
+    }
+  }),
+);
+
+async function recordRejected(d: Desk, b: z.infer<typeof deskSaleSchema>, e: AppError) {
+  if (await Sale.exists({ shopId: d.shopId, clientRequestId: b.clientRequestId })) return;
+  const products = await Product.find({ shopId: d.shopId, _id: { $in: b.lines.map((l) => l.productId) } }).select('name').lean();
+  const names = new Map(products.map((p) => [String(p._id), p.name]));
+  const prices = await Price.find({ shopId: d.shopId, branchId: d.terminal.branchId, productId: { $in: b.lines.map((l) => l.productId) } }).select('productId price').lean();
+  const pm = new Map(prices.map((p) => [String(p.productId), p.price as number]));
+  const lines = b.lines.map((l) => ({ productId: l.productId, name: names.get(l.productId) ?? '?', qty: l.qty, price: l.price ?? pm.get(l.productId) ?? 0 }));
+  const shift = await openShiftOf(d);
+  await DeclinedSale.updateOne(
+    { shopId: d.shopId, clientEventId: b.clientRequestId },
+    {
+      $setOnInsert: {
+        shopId: d.shopId, branchId: d.terminal.branchId, terminalId: d.terminal._id, shiftId: shift?._id, cashierName: shift?.cashierName ?? undefined,
+        source: 'desk', reason: 'rejected', errorCode: e.code, lines, method: b.method,
+        total: lines.reduce((s, l) => s + Math.round(l.qty * l.price), 0), createdAt: b.createdAt ?? new Date(),
+      },
+    },
+    { upsert: true },
+  );
+}
+
+async function deskSale(req: Request, res: any, d: Desk, b: z.infer<typeof deskSaleSchema>) {
+  {
     // an older program copy may name its shift; otherwise (and when that shift is closed) the server picks or opens one
     const named = b.shiftId ? await Shift.findOne({ _id: b.shiftId, shopId: d.shopId, terminalId: d.terminal._id, status: 'open' }) : null;
     const shift = named ?? (await ensureShift(d, true, req.ip));
@@ -347,6 +382,55 @@ deskRouter.post(
         warnings: r.warnings,
       },
     });
+  }
+}
+
+/** A receipt the cashier cleared before payment (Esc). Sent again after an offline period; stored once. */
+deskRouter.post(
+  '/declined',
+  validate({ body: deskDeclinedSchema }),
+  h(async (req, res) => {
+    const d = await desk(req);
+    const b = req.body as z.infer<typeof deskDeclinedSchema>;
+    const shift = await openShiftOf(d);
+    const cashier = shift?.cashierName ?? (await User.findOne({ _id: d.cashierId, shopId: d.shopId }).select('fullName').lean())?.fullName;
+    await DeclinedSale.updateOne(
+      { shopId: d.shopId, clientEventId: b.clientEventId },
+      {
+        $setOnInsert: {
+          shopId: d.shopId, branchId: d.terminal.branchId, terminalId: d.terminal._id, shiftId: shift?._id, cashierName: cashier,
+          source: 'desk', reason: 'cleared', lines: b.lines.map((l) => ({ ...l, price: l.price ?? 0 })), total: b.total, createdAt: b.createdAt ?? new Date(),
+        },
+      },
+      { upsert: true },
+    );
+    created(res, { ok: true });
+  }),
+);
+
+/* =================================================================================== history */
+
+/** This terminal's history (and the arrivals of its branch), the same feed as the web History page. */
+deskRouter.get(
+  '/history',
+  validate({ query: historyQuerySchema.omit({ branchId: true, terminalId: true }) }),
+  h(async (req, res) => {
+    const d = await desk(req);
+    const q = req.query as any;
+    const r = await historyFeed({ shopId: d.shopId, type: q.type, from: q.from, to: q.to, terminalId: d.terminal._id, q: q.q, page: q.page, limit: q.limit });
+    ok(res, r.items, { page: q.page, limit: q.limit, total: r.total, summary: r.summary });
+  }),
+);
+
+/** A past receipt of this terminal, to print it again from the History window. */
+deskRouter.get(
+  '/sales/:id/receipt',
+  validate({ params: z.object({ id: objectId }) }),
+  h(async (req, res) => {
+    const d = await desk(req);
+    const s = await Sale.findOne({ _id: req.params.id, shopId: d.shopId, terminalId: d.terminal._id });
+    if (!s) throw notFound();
+    ok(res, buildSaleReceipt(s, { shop: d.shop, branch: d.branch, terminal: d.terminal }));
   }),
 );
 

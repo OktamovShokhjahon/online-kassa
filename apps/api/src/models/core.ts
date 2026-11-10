@@ -87,6 +87,8 @@ const userSchema = new Schema(
     /** Stored lower-case; unique across the whole platform so the login identifies the shop. */
     login: { type: String, required: true, lowercase: true, trim: true, unique: true },
     passwordHash: { type: String, required: true },
+    /** The password encrypted with ENCRYPTION_KEY so the superadmin / shop owner can look it up. Never sent in toJSON. */
+    passwordEnc: { type: String },
     pinHash: { type: String },
     branchIds: { type: [oid], default: [] },
     /** Extra permission codes granted on top of the role defaults. */
@@ -97,7 +99,7 @@ const userSchema = new Schema(
     /** Bumped whenever role/permissions/branches/password change; embedded in access tokens. */
     permVersion: { type: Number, default: 1 },
   },
-  { timestamps: true, toJSON: cleanJson(['passwordHash', 'pinHash']) },
+  { timestamps: true, toJSON: cleanJson(['passwordHash', 'passwordEnc', 'pinHash']) },
 );
 userSchema.index({ shopId: 1, role: 1 });
 userSchema.index({ shopId: 1, isActive: 1 });

@@ -6,7 +6,7 @@ import { ApiError } from '@/lib/api';
 import { HelpLine, HelpTip, useFieldHelp } from './help';
 import { Icon, StarMark, StarPattern } from './icons';
 
-const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(' ');
+export const cx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(' ');
 /** Fields fill their container unless the caller sets a width. */
 /**
  * Fields are full width unless the page gives a width. A wide fixed width (filter bars: w-36 and up)

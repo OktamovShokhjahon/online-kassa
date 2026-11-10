@@ -206,3 +206,57 @@ describe('scanned codes', () => {
     expect(codeCandidates('012345678905').codes).toContain('0012345678905');
   });
 });
+
+describe('history: approved, declined, refunds, arrivals, shifts', () => {
+  it('records cleared and refused receipts and shows everything in one filtered feed (desk and web)', async () => {
+    const t = await posCtx({ openShift: false });
+    const { d } = await download(t);
+
+    // an approved sale
+    const sale = await d('post', '/sales', { clientRequestId: randomUUID(), method: 'card', lines: [{ productId: t.cola.id, qty: 2 }] });
+    expect(sale.status).toBe(201);
+    // refused by the server: not enough cash -> kept as "declined / rejected"
+    const refusedId = randomUUID();
+    expect((await d('post', '/sales', { clientRequestId: refusedId, method: 'cash', cashGiven: 100, lines: [{ productId: t.bread.id, qty: 1 }] })).body.error.code).toBe('PAYMENT_INSUFFICIENT');
+    // sent again (retry): stored once
+    await d('post', '/sales', { clientRequestId: refusedId, method: 'cash', cashGiven: 100, lines: [{ productId: t.bread.id, qty: 1 }] });
+    // cleared by the cashier (Esc), sent twice after an offline period: stored once
+    const ev = { clientEventId: randomUUID(), lines: [{ productId: t.bread.id, name: 'Non', qty: 3, price: BREAD.price }], total: 3 * BREAD.price };
+    expect((await d('post', '/declined', ev)).status).toBe(201);
+    expect((await d('post', '/declined', ev)).status).toBe(201);
+
+    const all = await d('get', '/history?limit=50');
+    expect(all.status).toBe(200);
+    const types = all.body.data.map((i: any) => `${i.type}:${i.kind}`);
+    expect(types).toContain('sale:completed');
+    expect(types).toContain('declined:rejected');
+    expect(types).toContain('declined:cleared');
+    expect(types).toContain('shift:open');
+    expect(all.body.meta.summary.sale).toMatchObject({ count: 1, amount: 2 * COLA.price });
+    expect(all.body.meta.summary.declined).toMatchObject({ count: 2, amount: 4 * BREAD.price });
+    const rejected = all.body.data.find((i: any) => i.kind === 'rejected');
+    expect(rejected).toMatchObject({ note: 'PAYMENT_INSUFFICIENT', items: [{ name: t.bread.name, qty: 1 }], terminalName: 'Kassa 1' });
+
+    // filters: type, search
+    const declined = (await d('get', '/history?type=declined')).body;
+    expect(declined.data).toHaveLength(2);
+    expect(declined.meta.total).toBe(2);
+    expect((await d('get', `/history?q=${encodeURIComponent(sale.body.data.sale.number)}`)).body.data.map((i: any) => i.type)).toEqual(['sale']);
+
+    // the past receipt can be printed again
+    const rc = await d('get', `/sales/${sale.body.data.sale.id}/receipt`);
+    expect(rc.body.data).toMatchObject({ type: 'sale', total: 2 * COLA.price });
+
+    // the owner sees the same in the panel, plus the warehouse arrivals of the shop
+    const arrivals = (await t.get('/history?type=arrival')).body;
+    expect(arrivals.data.length).toBeGreaterThan(0);
+    const web = (await t.get('/history?limit=100')).body;
+    expect(web.meta.summary.declined.count).toBe(2);
+    expect(web.data.some((i: any) => i.type === 'arrival')).toBe(true);
+    // a period with nothing in it
+    const empty = (await t.get('/history?from=2000-01-01T00:00:00Z&to=2000-01-02T00:00:00Z')).body;
+    expect(empty.data).toEqual([]);
+    // cashiers cannot read the shop history
+    expect((await t.get('/history', t.cashier.h)).status).toBe(403);
+  });
+});

@@ -3,6 +3,7 @@ import { Shell, type NavItem } from '@/components/Shell';
 
 const NAV: NavItem[] = [
   { href: '/shop', label: 'dashboard', perms: ['reports.view'], group: 'overview' },
+  { href: '/shop/history', label: 'history', perms: ['reports.view'], group: 'overview' },
   { href: '/shop/products', label: 'products', perms: ['products.view'], group: 'catalog' },
   { href: '/shop/categories', label: 'categories', perms: ['products.view'], group: 'catalog' },
   { href: '/shop/prices', label: 'prices', perms: ['prices.view'], group: 'catalog' },

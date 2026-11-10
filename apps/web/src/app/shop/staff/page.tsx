@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { LANGUAGES, ROLE_DEFAULT_PERMISSIONS, ROLE_GRANTABLE_PERMISSIONS, STAFF_ROLES, type Language, type Role } from '@kass/shared';
 import { CrudPage } from '@/components/crud';
+import { CredentialsCard } from '@/components/credentials';
 import { useBranches } from '@/components/pickers';
 import { Badge, Button, Modal, useToast } from '@/components/ui';
 import { patch, post } from '@/lib/api';
@@ -62,11 +63,16 @@ export default function StaffPage() {
         ]}
         rowActions={(r) => r.role === 'shop_admin' ? null : (
           <>
-            <Button size="sm" variant="ghost" onClick={async () => { try { setSecret(await post(`/users/${r.id}/reset-password`)); } catch (e) { toast.error(e); } }}>{t('resetPassword')}</Button>
+            <Button size="sm" variant="ghost" onClick={async () => { try { setSecret(await post(`/users/${r.id}/reset-password`)); qc.invalidateQueries({ queryKey: ['staff-credentials'] }); } catch (e) { toast.error(e); } }}>{t('resetPassword')}</Button>
             <Button size="sm" variant="ghost" onClick={() => status.mutate(r)}>{r.isActive ? t('deactivate') : t('activate')}</Button>
           </>
         )}
       />
+      {isAdmin && (
+        <div className="mt-6">
+          <CredentialsCard endpoint="/users/credentials" editPath={(id) => `/users/${id}/credentials`} queryKey={['staff-credentials']} />
+        </div>
+      )}
       <Modal open={!!secret} onClose={() => setSecret(null)} title={t('resetPassword')} footer={<Button onClick={() => setSecret(null)}>{tc('close')}</Button>}>
         <p className="mb-2 text-sm text-muted">{t('shownOnce')}</p>
         <div className="rounded-lg bg-surface-2 p-3 font-mono"><div>{secret?.login}</div><div className="select-all text-lg font-bold">{secret?.newPassword}</div></div>

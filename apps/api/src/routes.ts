@@ -8,6 +8,7 @@ import { productsRouter } from './modules/catalog/products';
 import { goodsReceiptsRouter, stockCountsRouter, supplierReturnsRouter, transfersRouter, writeOffsRouter } from './modules/stock/documents';
 import { stockRouter } from './modules/stock/stock';
 import { suppliersRouter, supplierPaymentsRouter } from './modules/stock/suppliers';
+import { historyRouter } from './modules/history/routes';
 import { agentRouter } from './modules/agent/routes';
 import { customerPaymentsRouter, customersRouter, promotionsRouter } from './modules/customers/routes';
 import { fiscalRouter } from './modules/fiscal/routes';
@@ -76,6 +77,7 @@ export function buildRoutes(): Router {
   r.use('/promotions', promotionsRouter);
   r.use('/fiscal', fiscalRouter);
   r.use('/reports', reportsRouter);
+  r.use('/history', historyRouter);
 
   // integrations (Stage 7)
   r.use('/api-keys', apiKeysRouter);

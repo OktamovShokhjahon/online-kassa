@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import type { Role } from '@kass/shared';
 import { env } from '../../config/env';
+import { decrypt, encrypt } from '../../lib/crypto';
 import { effectiveStatus, getGraceDays } from '../../lib/platform';
 import type { ShopDoc, UserDoc } from '../../models/core';
 import { effectivePermissions } from '../../middleware/auth';
@@ -49,4 +50,20 @@ export async function publicShop(shop: ShopDoc | null) {
     paidUntil: shop.paidUntil,
     settings: shop.settings,
   };
+}
+
+/**
+ * Passwords are checked against the bcrypt hash; in addition a copy encrypted with ENCRYPTION_KEY
+ * lets the superadmin (any shop user) and the shop owner (their staff) look a password up.
+ */
+export const sealPassword = (plain: string) => encrypt(plain);
+
+/** The stored password, or null when it was set before passwords were kept (or the key changed). */
+export function revealPassword(user: { passwordEnc?: string | null }): string | null {
+  if (!user.passwordEnc) return null;
+  try {
+    return decrypt(user.passwordEnc);
+  } catch {
+    return null;
+  }
 }

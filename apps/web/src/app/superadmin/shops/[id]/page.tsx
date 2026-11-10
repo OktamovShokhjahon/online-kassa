@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { LANGUAGES, PAYMENT_METHODS, formatMoney, type Currency, type Language } from '@kass/shared';
 import { Badge, Button, Card, DataTable, Field, FormError, Input, Modal, MoneyInput, PageHeader, Select, Spinner, Tabs, Textarea, Checkbox, useToast } from '@/components/ui';
 import { ProgramsTab } from '@/components/superadmin/ProgramsTab';
+import { ShopStatsTab } from '@/components/superadmin/ShopStatsTab';
+import { CredentialsCard } from '@/components/credentials';
 import { api, patch, post, put } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { fmtDate, fmtDateTime } from '@/lib/format';
@@ -24,14 +26,14 @@ export default function ShopDetailPage() {
   const qc = useQueryClient();
   const toast = useToast();
   const { applySession } = useAuth();
-  const [tab, setTab] = useState<'overview' | 'payments' | 'terminals' | 'programs'>('overview');
+  const [tab, setTab] = useState<'overview' | 'stats' | 'users' | 'payments' | 'terminals' | 'programs'>('overview');
   const [dialog, setDialog] = useState<Dialog>(null);
   const [secret, setSecret] = useState<{ login: string; newPassword: string } | null>(null);
 
   const { data: shop, isLoading } = useQuery({ queryKey: ['sa-shop', id], queryFn: () => api(`/admin/shops/${id}`) });
   const refresh = () => { qc.invalidateQueries({ queryKey: ['sa-shop', id] }); qc.invalidateQueries({ queryKey: ['sa-shops'] }); };
   const close = () => setDialog(null);
-  const act = useMutation({ mutationFn: (fn: () => Promise<any>) => fn(), onSuccess: () => { refresh(); close(); toast.ok(tc('saved')); }, onError: toast.error });
+  const act = useMutation({ mutationFn: (fn: () => Promise<any>) => fn(), onSuccess: () => { refresh(); qc.invalidateQueries({ queryKey: ['sa-shop-users', id] }); close(); toast.ok(tc('saved')); }, onError: toast.error });
 
   if (isLoading || !shop) return <Spinner />;
   const cur = shop.currency as Currency;
@@ -60,9 +62,19 @@ export default function ShopDetailPage() {
         }
       />
       {blocked && <p className="mb-3 rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{t('shop.blockedBecause')}: {shop.blockReason}</p>}
-      <Tabs value={tab} onChange={setTab} tabs={[{ key: 'overview', label: t('shop.overview') }, { key: 'payments', label: t('shop.payments') }, { key: 'terminals', label: t('shop.terminals') }, { key: 'programs', label: t('prog.tab') }]} />
+      <Tabs value={tab} onChange={setTab} tabs={[{ key: 'overview', label: t('shop.overview') }, { key: 'stats', label: t('stats.tab') }, { key: 'users', label: t('shop.usersTab') }, { key: 'payments', label: t('shop.payments') }, { key: 'terminals', label: t('shop.terminals') }, { key: 'programs', label: t('prog.tab') }]} />
 
       {tab === 'programs' && <ProgramsTab shopId={id} />}
+      {tab === 'stats' && <ShopStatsTab shopId={id} currency={cur} />}
+      {tab === 'users' && (
+        <CredentialsCard
+          endpoint={`/admin/shops/${id}/users`}
+          editPath={(uid) => `/admin/shops/${id}/users/${uid}`}
+          queryKey={['sa-shop-users', id]}
+          title={t('shop.usersTab')}
+          note={t('shop.usersNote')}
+        />
+      )}
 
       {tab === 'overview' && (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -76,7 +88,7 @@ export default function ShopDetailPage() {
               <dt className="text-muted">{tc('note')}</dt><dd>{shop.note || '—'}</dd>
             </dl>
           </Card>
-          <Card title={t('shop.adminAccount')} actions={<><Button size="sm" variant="secondary" onClick={() => setDialog('reset')}>{t('shop.resetPassword')}</Button><Button size="sm" variant="secondary" onClick={() => setDialog('admin')}>{t('shop.changeAdmin')}</Button></>}>
+          <Card title={t('shop.adminAccount')} actions={<><Button size="sm" variant="secondary" onClick={() => setTab('users')}>{t('shop.seeCredentials')}</Button><Button size="sm" variant="secondary" onClick={() => setDialog('reset')}>{t('shop.resetPassword')}</Button><Button size="sm" variant="secondary" onClick={() => setDialog('admin')}>{t('shop.changeAdmin')}</Button></>}>
             {shop.admin ? (
               <dl className="grid grid-cols-[10rem_1fr] gap-y-2 text-sm">
                 <dt className="text-muted">{tc('name')}</dt><dd>{shop.admin.fullName}</dd>
@@ -132,7 +144,7 @@ export default function ShopDetailPage() {
       <Modal open={dialog === 'impersonate'} onClose={close} title={t('shop.impersonate')} footer={<><Button variant="secondary" onClick={close}>{tc('cancel')}</Button><Button onClick={() => impersonate().catch(toast.error)}>{tc('confirm')}</Button></>}>
         <p className="text-sm">{t('shop.impersonateWarning')}</p>
       </Modal>
-      <Modal open={dialog === 'reset'} onClose={close} title={t('shop.resetPassword')} footer={<><Button variant="secondary" onClick={close}>{tc('cancel')}</Button><Button onClick={async () => { try { setSecret(await post(`/admin/shops/${id}/reset-admin-password`, {})); close(); } catch (e) { toast.error(e); } }}>{tc('confirm')}</Button></>}>
+      <Modal open={dialog === 'reset'} onClose={close} title={t('shop.resetPassword')} footer={<><Button variant="secondary" onClick={close}>{tc('cancel')}</Button><Button onClick={async () => { try { setSecret(await post(`/admin/shops/${id}/reset-admin-password`, {})); qc.invalidateQueries({ queryKey: ['sa-shop-users', id] }); close(); } catch (e) { toast.error(e); } }}>{tc('confirm')}</Button></>}>
         <p className="text-sm">{t('shop.resetWarning')}</p>
       </Modal>
       <Modal open={!!secret} onClose={() => setSecret(null)} title={t('shop.newPassword')} footer={<Button onClick={() => setSecret(null)}>{tc('close')}</Button>}>

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SALE_PAYMENT_METHODS } from '../constants';
+import { HISTORY_TYPES, SALE_PAYMENT_METHODS } from '../constants';
 import { PROMOTION_TYPES } from '../promotions';
 import { isoDate, moneySchema, objectId, paginationSchema, phoneSchema } from './common';
 import { qtySchema } from './stock';
@@ -148,3 +148,20 @@ export const promotionInputSchema = z
     }
     if (p.startsAt && p.endsAt && p.endsAt <= p.startsAt) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['endsAt'], message: 'endsAt must be after startsAt' });
   });
+
+/** History feed (sales, declined receipts, refunds, arrivals, shifts, cash in/out). */
+export const historyQuerySchema = paginationSchema.extend({
+  type: z.enum(HISTORY_TYPES).optional(),
+  from: isoDate.optional(),
+  to: isoDate.optional(),
+  branchId: objectId.optional(),
+  terminalId: objectId.optional(),
+});
+
+/** A receipt the cash-desk program cleared before payment. */
+export const deskDeclinedSchema = z.object({
+  clientEventId: z.string().trim().min(8).max(64),
+  lines: z.array(z.object({ productId: objectId.optional(), name: z.string().trim().max(300), qty: z.number().positive().max(1_000_000), price: z.number().int().min(0).nullable().optional() })).min(1).max(300),
+  total: z.number().int().min(0).default(0),
+  createdAt: isoDate.optional(),
+});

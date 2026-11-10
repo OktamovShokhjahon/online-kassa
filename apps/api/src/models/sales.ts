@@ -297,3 +297,38 @@ fiscalLogSchema.index({ shopId: 1, createdAt: -1 });
 fiscalLogSchema.index({ shopId: 1, terminalId: 1, createdAt: -1 });
 fiscalLogSchema.plugin(tenantGuard);
 export const FiscalLog = mongoose.model('FiscalLog', fiscalLogSchema);
+
+/* ------------------------------------------------------------------- declined sales */
+
+/**
+ * A receipt that did not become a sale: cleared by the cashier before payment ("cleared") or
+ * refused by the server ("rejected", with the error code). Shown in the history next to the
+ * approved sales so the owner sees every attempt at the till.
+ */
+const declinedSaleSchema = new Schema(
+  {
+    shopId: { type: oid, required: true },
+    branchId: { type: oid, ref: 'Branch', required: true },
+    terminalId: { type: oid, ref: 'Terminal' },
+    shiftId: { type: oid, ref: 'Shift' },
+    cashierName: String,
+    source: { type: String, enum: ['desk', 'pos'], default: 'desk' },
+    reason: { type: String, enum: ['cleared', 'rejected'], required: true },
+    errorCode: String,
+    lines: {
+      type: [new Schema({ productId: oid, name: String, qty: Number, price: Number }, { _id: false })],
+      default: [],
+    },
+    total: { type: Number, default: 0 },
+    method: String,
+    /** The program's id of the attempt: the same event sent twice is stored once. */
+    clientEventId: String,
+    createdAt: { type: Date, default: Date.now },
+  },
+  { timestamps: false, toJSON: json },
+);
+declinedSaleSchema.index({ shopId: 1, createdAt: -1 });
+declinedSaleSchema.index({ shopId: 1, terminalId: 1, createdAt: -1 });
+declinedSaleSchema.index({ shopId: 1, clientEventId: 1 }, { unique: true, partialFilterExpression: { clientEventId: { $type: 'string' } } });
+declinedSaleSchema.plugin(tenantGuard);
+export const DeclinedSale = mongoose.model('DeclinedSale', declinedSaleSchema);

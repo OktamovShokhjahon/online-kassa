@@ -87,9 +87,16 @@ Platform owner → Shops → a shop → **Programs** downloads `kassa_desk_<term
 program (standard library only) that reads a 2D/1D scanner on a USB COM port (or in keyboard mode), shows the
 receipt and total, saves each sale through `/api/v1/desk/*`, prints ESC/POS receipts, and keeps selling offline in
 non-fiscal shops. It has no shift buttons: the server opens one shift per day for that register on the first sale and
-closes it automatically the next day (cash counted = expected). The file carries its own key (revocable on the same tab). Build an .exe with
+closes it automatically the next day (cash counted = expected). The file carries its own key (revocable on the same tab). Its **History** window (F5) lists this register's sales, declined receipts (cleared with Esc or refused by the server), refunds, goods received and shifts, with type / period / search filters and reprinting; the same feed is the **History** page of the shop panel (`GET /history`). Build an .exe with
 `pyinstaller --onefile --noconsole --name OnlineKassDesk kassa_desk_<terminal>.py`. Template:
 `apps/api/assets/programs/kassa_desk.py`.
+
+### Logins and passwords
+
+Passwords are checked against bcrypt hashes; a copy encrypted with `ENCRYPTION_KEY` (AES-256-GCM) is kept so the platform owner
+(shop page → **Login va parollar**) and the shop owner (**Xodimlar** page, staff only) can look them up and change them. Passwords set
+before this existed show as unknown until the user signs in again or gets a new one. Each look-up is written to the audit log.
+The shop page also has a **Statistika** tab (sales, profit, refunds, declined receipts, goods received, per day / till / cashier).
 
 ## Scripts
 
