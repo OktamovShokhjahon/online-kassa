@@ -72,6 +72,7 @@ export const uz: Messages = {
     feat3: 'Har bir filialdagi savdo va qoldiq real vaqtda',
   },
   errors: {
+    RESET_CONFIRM_MISMATCH: "Do'kon nomi noto'g'ri kiritildi",
     VALIDATION_ERROR: "Yuborilgan ma'lumotlar noto'g'ri",
     UNAUTHORIZED: 'Avtorizatsiya talab qilinadi',
     INVALID_CREDENTIALS: "Login yoki parol noto'g'ri",
@@ -348,6 +349,70 @@ export const uz: Messages = {
       "d7": "7 kun",
       "d30": "30 kun",
       "attention": "To'lov muddati tugayapti yoki tugagan"
+    },
+    "reset": {
+      "button": "Tozalash",
+      "title": "Do'kon ma'lumotlarini tozalash",
+      "warning": "Tanlangan ma'lumotlar butunlay o'chiriladi va ularni qaytarib bo'lmaydi.",
+      "choose": "Nimalar o'chirilsin?",
+      "all": "Hammasini tanlash",
+      "none": "Tanlovni bekor qilish",
+      "records": "{n} ta",
+      "neededBy": "Avtomatik: «{list}» uchun kerak",
+      "stays": "Do'kon, uning egasi (login va paroli bilan), birinchi filial va sozlamalar har doim qoladi.",
+      "typeName": "Tasdiqlash uchun do'kon nomini yozing:",
+      "delete": "O'chirish ({n} ta yozuv)",
+      "done": "Tozalandi: {n} ta yozuv o'chirildi",
+      "groups": {
+        "sales": {
+          "name": "Sotuvlar va smenalar",
+          "what": "Cheklar, qaytarishlar, rad etilgan cheklar, smenalar, pul kirim/chiqim, fiskal jurnal"
+        },
+        "warehouse": {
+          "name": "Ombor",
+          "what": "Kirimlar, qoldiqlar, harakatlar, ko'chirishlar, hisobdan chiqarish, inventarizatsiya, yetkazib beruvchilarga to'lovlar"
+        },
+        "suppliers": {
+          "name": "Yetkazib beruvchilar",
+          "what": "Yetkazib beruvchilar va ularga to'lovlar"
+        },
+        "products": {
+          "name": "Mahsulotlar",
+          "what": "Mahsulotlar, narxlar, rejalashtirilgan narx o'zgarishlari"
+        },
+        "categories": {
+          "name": "Kategoriyalar",
+          "what": "Kategoriyalar (mahsulotlar qolsa, kategoriyasiz qoladi)"
+        },
+        "promotions": {
+          "name": "Aksiyalar",
+          "what": "Barcha aksiyalar va chegirmalar"
+        },
+        "customers": {
+          "name": "Mijozlar",
+          "what": "Mijozlar, bonuslar, nasiya to'lovlari"
+        },
+        "staff": {
+          "name": "Xodimlar",
+          "what": "Egadan boshqa barcha xodimlar (kassir, menejer, omborchi)"
+        },
+        "programs": {
+          "name": "Kassa dasturlari",
+          "what": "Yuklab olingan kassa dasturlarining kalitlari (dasturlar ishlamay qoladi)"
+        },
+        "integrations": {
+          "name": "Integratsiyalar",
+          "what": "API kalitlari, webhooklar, Telegram ulanishlari"
+        },
+        "branches": {
+          "name": "Filiallar va kassalar",
+          "what": "Birinchi filialdan boshqa filiallar va barcha kassalar"
+        },
+        "audit": {
+          "name": "Audit jurnali",
+          "what": "Do'kondagi harakatlar jurnali"
+        }
+      }
     },
     "stats": {
       "tab": "Statistika",

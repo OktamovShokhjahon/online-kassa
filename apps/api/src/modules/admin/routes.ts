@@ -15,6 +15,7 @@ import {
   recordPaymentSchema,
   resetPasswordSchema,
   shopListQuerySchema,
+  shopResetSchema,
   updateShopSchema,
   userCredentialsSchema,
 } from '@kass/shared';
@@ -52,6 +53,7 @@ import {
 import { hashSecret, publicShop, publicUser, sealPassword } from '../auth/service';
 import { applyCredentials, withCredentials } from '../shop/credentials';
 import { platformSalesStats, shopStats } from './stats';
+import { resetPreview, resetShop } from './reset';
 import { clearExpiryFlag } from '../../workers/shopExpiry';
 import { agentHub } from '../agent/hub';
 import { encrypt } from '../../lib/crypto';
@@ -414,6 +416,33 @@ adminRouter.get(
     const back = (n: number) => startOf(tashkentDateString(new Date(now.getTime() - n * 86_400_000)));
     const from = period === 'today' ? startOf(todayStr) : period === '7d' ? back(6) : period === '30d' ? back(29) : period === 'month' ? startOf(todayStr.slice(0, 8) + '01') : undefined;
     ok(res, { period, from: from ?? null, to, currency: shop.currency, ...(await shopStats(shop._id, from, to)) });
+  }),
+);
+
+/* ------------------------------------------------------------------ reset (wipe data) */
+
+/** What a reset would delete: record counts per group. */
+adminRouter.get(
+  '/shops/:id/reset',
+  idParams,
+  h(async (req, res) => {
+    const shop = await findShop(req.params.id);
+    ok(res, { shopName: shop.name, groups: await resetPreview(shop._id) });
+  }),
+);
+
+/** Deletes the chosen data of the shop. The shop name must be typed exactly to confirm. */
+adminRouter.post(
+  '/shops/:id/reset',
+  idParams,
+  validate({ body: shopResetSchema }),
+  h(async (req, res) => {
+    const shop = await findShop(req.params.id);
+    const b = req.body as z.infer<typeof shopResetSchema>;
+    if (b.confirmName.trim().toLowerCase() !== shop.name.trim().toLowerCase()) throw badRequest('RESET_CONFIRM_MISMATCH');
+    const r = await resetShop(shop._id, b.groups);
+    await platformAudit(req, 'shop.reset', shop._id, { after: r });
+    ok(res, r);
   }),
 );
 

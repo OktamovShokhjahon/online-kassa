@@ -8,12 +8,13 @@ import { LANGUAGES, PAYMENT_METHODS, formatMoney, type Currency, type Language }
 import { Badge, Button, Card, DataTable, Field, FormError, Input, Modal, MoneyInput, PageHeader, Select, Spinner, Tabs, Textarea, Checkbox, useToast } from '@/components/ui';
 import { ProgramsTab } from '@/components/superadmin/ProgramsTab';
 import { ShopStatsTab } from '@/components/superadmin/ShopStatsTab';
+import { ResetDialog } from '@/components/superadmin/ResetDialog';
 import { CredentialsCard } from '@/components/credentials';
 import { api, patch, post, put } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { fmtDate, fmtDateTime } from '@/lib/format';
 
-type Dialog = null | 'block' | 'payment' | 'edit' | 'reset' | 'admin' | 'fiscal' | 'impersonate' | { terminal: any };
+type Dialog = null | 'block' | 'payment' | 'edit' | 'reset' | 'wipe' | 'admin' | 'fiscal' | 'impersonate' | { terminal: any };
 
 export default function ShopDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -57,6 +58,7 @@ export default function ShopDetailPage() {
             <Button variant="secondary" onClick={() => setDialog('edit')}>{tc('edit')}</Button>
             <Button variant="secondary" onClick={() => setDialog('payment')}>{t('shop.recordPayment')}</Button>
             <Button variant="secondary" disabled={blocked} onClick={() => setDialog('impersonate')}>{t('shop.impersonate')}</Button>
+            <Button variant="secondary" className="!text-danger" onClick={() => setDialog('wipe')}>{t('reset.button')}</Button>
             {blocked ? <Button onClick={() => act.mutate(() => post(`/admin/shops/${id}/unblock`))}>{t('shop.unblock')}</Button> : <Button variant="danger" onClick={() => setDialog('block')}>{t('shop.block')}</Button>}
           </>
         }
@@ -139,6 +141,7 @@ export default function ShopDetailPage() {
       <EditDialog open={dialog === 'edit'} onClose={close} shop={shop} onSubmit={(b) => act.mutate(() => patch(`/admin/shops/${id}`, b))} error={act.error} busy={act.isPending} />
       <FiscalDialog open={dialog === 'fiscal'} onClose={close} shop={shop} onSubmit={(b) => act.mutate(() => patch(`/admin/shops/${id}/fiscal`, b))} error={act.error} busy={act.isPending} />
       <AdminDialog open={dialog === 'admin'} onClose={close} onSubmit={(b) => act.mutate(() => post(`/admin/shops/${id}/change-admin`, b))} error={act.error} busy={act.isPending} />
+      <ResetDialog shopId={id} open={dialog === 'wipe'} onClose={close} />
       <TerminalFiscalDialog terminal={typeof dialog === 'object' && dialog ? dialog.terminal : null} onClose={close} onSubmit={(tid, b) => act.mutate(() => put(`/admin/shops/${id}/terminals/${tid}/fiscal`, b))} error={act.error} busy={act.isPending} />
 
       <Modal open={dialog === 'impersonate'} onClose={close} title={t('shop.impersonate')} footer={<><Button variant="secondary" onClick={close}>{tc('cancel')}</Button><Button onClick={() => impersonate().catch(toast.error)}>{tc('confirm')}</Button></>}>

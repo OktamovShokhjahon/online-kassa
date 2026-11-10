@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PAYMENT_METHODS, SHOP_EFFECTIVE_STATUSES } from '../constants';
+import { PAYMENT_METHODS, RESET_GROUPS, SHOP_EFFECTIVE_STATUSES } from '../constants';
 import {
   currencySchema,
   isoDate,
@@ -118,3 +118,9 @@ export const userCredentialsSchema = z
     fullName: z.string().trim().min(1).max(100).optional(),
   })
   .refine((v) => v.login !== undefined || v.password !== undefined || v.fullName !== undefined, 'Nothing to change');
+
+/** Superadmin: wipe chosen data of a shop; the shop name must be typed to confirm. */
+export const shopResetSchema = z.object({
+  groups: z.array(z.enum(RESET_GROUPS)).min(1),
+  confirmName: z.string().trim().min(1).max(200),
+});

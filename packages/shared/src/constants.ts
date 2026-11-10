@@ -161,3 +161,30 @@ export const INVENTORY_REPORTS = ['stock', 'stock-movement', 'negative-stock', '
 /** Kinds of entries in the history (web History page and the cash-desk program's History window). */
 export const HISTORY_TYPES = ['sale', 'declined', 'refund', 'arrival', 'shift', 'cash'] as const;
 export type HistoryType = (typeof HISTORY_TYPES)[number];
+
+/**
+ * What the superadmin can wipe from a shop ("Reset" on the shop page). The owner account, the shop
+ * itself and its first branch always stay. Groups that others depend on are added automatically.
+ */
+export const RESET_GROUPS = ['sales', 'warehouse', 'suppliers', 'products', 'categories', 'promotions', 'customers', 'staff', 'programs', 'integrations', 'branches', 'audit'] as const;
+export type ResetGroup = (typeof RESET_GROUPS)[number];
+export const RESET_REQUIRES: Partial<Record<ResetGroup, ResetGroup[]>> = {
+  // receipts and returns point to suppliers; stock and promotions point to products
+  suppliers: ['warehouse'],
+  products: ['warehouse', 'promotions'],
+  // desk program keys are bound to a cashier and a till
+  staff: ['programs'],
+  branches: ['sales', 'warehouse', 'programs'],
+};
+
+/** The chosen groups plus everything they need, in a stable order. */
+export function withResetDependencies(groups: readonly ResetGroup[]): ResetGroup[] {
+  const out = new Set<ResetGroup>();
+  const add = (g: ResetGroup) => {
+    if (out.has(g)) return;
+    out.add(g);
+    for (const d of RESET_REQUIRES[g] ?? []) add(d);
+  };
+  groups.forEach(add);
+  return RESET_GROUPS.filter((g) => out.has(g));
+}

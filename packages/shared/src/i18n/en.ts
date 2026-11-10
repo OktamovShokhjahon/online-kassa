@@ -70,6 +70,7 @@ export const en = {
     feat3: 'Live sales and stock in every branch',
   },
   errors: {
+    RESET_CONFIRM_MISMATCH: "The shop name does not match",
     VALIDATION_ERROR: 'The submitted data is invalid',
     UNAUTHORIZED: 'Authentication required',
     INVALID_CREDENTIALS: 'Invalid login or password',
@@ -346,6 +347,70 @@ export const en = {
       "d7": "7 days",
       "d30": "30 days",
       "attention": "Paid period ending or ended"
+    },
+    "reset": {
+      "button": "Reset",
+      "title": "Reset shop data",
+      "warning": "The chosen data is deleted for good and cannot be brought back.",
+      "choose": "What to delete?",
+      "all": "Select all",
+      "none": "Clear selection",
+      "records": "{n}",
+      "neededBy": "Included: needed for \"{list}\"",
+      "stays": "The shop, its owner (with login and password), the first branch and the settings always stay.",
+      "typeName": "To confirm, type the shop name:",
+      "delete": "Delete ({n} records)",
+      "done": "Reset done: {n} records deleted",
+      "groups": {
+        "sales": {
+          "name": "Sales and shifts",
+          "what": "Receipts, refunds, declined receipts, shifts, cash in/out, fiscal log"
+        },
+        "warehouse": {
+          "name": "Warehouse",
+          "what": "Arrivals, stock, movements, transfers, write-offs, stock counts, supplier payments"
+        },
+        "suppliers": {
+          "name": "Suppliers",
+          "what": "Suppliers and payments to them"
+        },
+        "products": {
+          "name": "Products",
+          "what": "Products, prices, scheduled price changes"
+        },
+        "categories": {
+          "name": "Categories",
+          "what": "Categories (products that stay lose their category)"
+        },
+        "promotions": {
+          "name": "Promotions",
+          "what": "All promotions and discounts"
+        },
+        "customers": {
+          "name": "Customers",
+          "what": "Customers, bonuses, debt payments"
+        },
+        "staff": {
+          "name": "Staff",
+          "what": "Every employee except the owner (cashiers, managers, storekeepers)"
+        },
+        "programs": {
+          "name": "Cash-desk programs",
+          "what": "Keys of downloaded cash-desk programs (they stop working)"
+        },
+        "integrations": {
+          "name": "Integrations",
+          "what": "API keys, webhooks, Telegram connections"
+        },
+        "branches": {
+          "name": "Branches and tills",
+          "what": "Every branch except the first one, and all tills"
+        },
+        "audit": {
+          "name": "Audit log",
+          "what": "Log of actions in the shop"
+        }
+      }
     },
     "stats": {
       "tab": "Statistics",
